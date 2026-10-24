@@ -1,39 +1,35 @@
-# Production deployment
+# Production deployment with Coolify
 
-The app runs as one hardened Next.js container. Its JSON datastore lives in a named Docker volume, so no separate database service is required.
+The app runs as one hardened Next.js container. Its JSON datastore lives in a named Docker volume, so no separate database service is required. `docker-compose.yml` is designed for Coolify's Docker Compose build pack.
 
 ## Requirements
 
-- A Linux server with Docker Engine 23+ and Docker Compose v2
-- A reverse proxy with TLS for internet-facing deployments
+- A Coolify destination with Docker Engine 23+ and Docker Compose v2
+- A wildcard domain configured in Coolify, or a domain you assign to the `app` service
 
 ## Start the stack
 
-```bash
-git clone <repository-url> namechooser
-cd namechooser
-cp .env.example .env
-# Edit .env if port 3000 is unavailable.
-docker compose up -d --build
-docker compose ps
-curl --fail http://127.0.0.1:3000/api/health
-```
+1. Create a new Coolify resource from this Git repository.
+2. Select the **Docker Compose** build pack and `docker-compose.yml`.
+3. Deploy. Coolify reads `SERVICE_FQDN_APP_3000`, creates a domain when a wildcard domain is available, and routes it to port 3000 in the `app` container.
+4. In Coolify, confirm the `app` service is healthy and open the generated domain.
 
-By default the app is available only at `127.0.0.1:3000`. Set `APP_PORT` to change the host port. Set `APP_HOST=0.0.0.0` only when the application must be reached directly from another machine and the server firewall is configured accordingly.
+The Compose file intentionally has no `ports:` binding. Port 3000 is exposed only to the Compose/Coolify network; Coolify's proxy is the public entrypoint.
 
 ## Configuration
 
-| Variable | Default | Purpose |
+| Variable | Managed by | Purpose |
 | --- | --- | --- |
-| `APP_HOST` | `127.0.0.1` | Host interface on which Compose publishes the app |
-| `APP_PORT` | `3000` | Published host port |
-| `IMAGE_TAG` | `local` | Local image tag used by Compose |
+| `SERVICE_FQDN_APP_3000` | Coolify | Generates the public hostname and routes it to internal port 3000 |
+| `DATA_FILE_PATH` | Compose | Persistent datastore path, `/app/data/names.json` |
+| `HOSTNAME` / `PORT` | Compose | Makes Next.js listen on `0.0.0.0:3000` |
+| `NODE_ENV` | Compose | Enables the production runtime |
 
-`DATA_FILE_PATH` is set inside Compose to `/app/data/names.json` and normally should not be changed.
+No secret or user-supplied environment variable is required. Assign a custom domain to the `app` service in Coolify if you do not want the generated hostname.
 
 ## Persistent data and backups
 
-The `namechooser-data` volume contains `names.json`. Container recreation and `docker compose down` preserve it. Do not run `docker compose down --volumes` unless you intentionally want to erase all saved names.
+The named `namechooser-data` volume contains `names.json`. Coolify redeployments and container recreation preserve it. Do not remove this storage from Coolify or run `docker compose down --volumes` unless you intentionally want to erase all saved names.
 
 Create a backup without exposing the datastore:
 
@@ -49,28 +45,21 @@ docker compose run --rm -T --entrypoint sh app -c 'cat > /app/data/names.json' <
 docker compose start app
 ```
 
-## Reverse proxy
+## Reverse proxy and access control
 
-Keep `APP_HOST=127.0.0.1` and proxy HTTPS traffic to `http://127.0.0.1:3000`. A minimal Nginx location is:
+Coolify's proxy terminates TLS and forwards the generated/custom domain to the exposed container port. Do not add a host `ports:` mapping; it bypasses this routing and can expose the service directly.
 
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-Terminate TLS at Nginx, Caddy, Traefik, or another trusted proxy. The app has no account system because it is intended for Cindy and Florian; add reverse-proxy authentication or restrict network access before publishing it to the public internet. The management and mutation API routes are otherwise reachable by anyone who can access the app.
+The app has no account system because it is intended for Cindy and Florian. Enable access control at the Coolify proxy or restrict the domain to a private network before public exposure. The management and mutation API routes are otherwise reachable by anyone who can access the app.
 
 ## Upgrade
 
-```bash
-git pull
-docker compose up -d --build
-docker compose ps
-```
+Use **Redeploy** in Coolify after merging or updating the tracked branch. Coolify rebuilds the image and reuses the named volume.
 
-The container health check uses `/api/health`. Review `docker compose logs app` if its status is not `healthy`.
+The container health check uses `/api/health`. Review the `app` service logs in Coolify if its status is not `healthy`.
+
+For a non-Coolify smoke test on a Linux server:
+
+```bash
+docker compose up -d --build
+docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/health').then(async r => { console.log(await r.text()); process.exit(r.ok ? 0 : 1) })"
+```

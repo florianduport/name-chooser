@@ -36,8 +36,8 @@ npm run build
 ## Docker
 
 ```bash
-cp .env.example .env
 docker compose up -d --build
+docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/health').then(async r => { console.log(await r.text()); process.exit(r.ok ? 0 : 1) })"
 ```
 
-See [DEPLOY.md](DEPLOY.md) for production deployment, persistence, backups, and reverse-proxy guidance.
+The Compose service exposes port 3000 to the internal network without publishing a host port. See [DEPLOY.md](DEPLOY.md) for Coolify deployment, persistence, backups, health checks, and proxy guidance.
