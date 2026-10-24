@@ -1,281 +1,227 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Gender, Name } from '@/types';
+
+type Notice = { tone: 'success' | 'error'; message: string } | null;
 
 export default function ManagePage() {
   const router = useRouter();
   const [activeGender, setActiveGender] = useState<Gender>('girl');
-  const [girlsNames, setGirlsNames] = useState<Name[]>([]);
-  const [boysNames, setBoysNames] = useState<Name[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [names, setNames] = useState<Record<Gender, Name[]>>({ girl: [], boy: [] });
   const [newName, setNewName] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<Notice>(null);
 
   useEffect(() => {
-    loadNames();
+    const controller = new AbortController();
+    Promise.all([
+      fetch('/api/names?gender=girl', { signal: controller.signal }),
+      fetch('/api/names?gender=boy', { signal: controller.signal }),
+    ])
+      .then(async ([girlsResponse, boysResponse]) => {
+        if (!girlsResponse.ok || !boysResponse.ok) throw new Error();
+        const [girlsData, boysData] = await Promise.all([girlsResponse.json(), boysResponse.json()]);
+        setNames({ girl: girlsData.names ?? [], boy: boysData.names ?? [] });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === 'AbortError') return;
+        setNotice({ tone: 'error', message: 'Impossible de charger les prénoms. Vérifiez la connexion puis réessayez.' });
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
   }, []);
 
-  const loadNames = async () => {
-    setIsLoading(true);
-    try {
-      const [girlsResponse, boysResponse] = await Promise.all([
-        fetch('/api/names?gender=girl'),
-        fetch('/api/names?gender=boy'),
-      ]);
+  const filteredNames = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase('fr');
+    return [...names[activeGender]]
+      .filter((item) => item.name.toLocaleLowerCase('fr').includes(normalizedQuery))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [activeGender, names, query]);
 
-      const girlsData = await girlsResponse.json();
-      const boysData = await boysResponse.json();
-
-      if (girlsData.names) setGirlsNames(girlsData.names);
-      if (boysData.names) setBoysNames(boysData.names);
-    } catch (error) {
-      console.error('Error loading names:', error);
-      alert('Erreur lors du chargement des noms');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddName = async (gender: Gender) => {
-    if (!newName.trim()) {
-      alert('Veuillez entrer un nom');
-      return;
-    }
-
-    setIsAdding(true);
+  const addName = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!newName.trim()) return;
+    setIsSaving(true);
+    setNotice(null);
     try {
       const response = await fetch('/api/names', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName.trim(), gender }),
+        body: JSON.stringify({ name: newName, gender: activeGender }),
       });
-
       const data = await response.json();
-
-      if (response.ok) {
-        if (data.created) {
-          // Recharger les noms pour ce genre
-          const namesResponse = await fetch(`/api/names?gender=${gender}`);
-          const namesData = await namesResponse.json();
-          if (gender === 'girl') {
-            setGirlsNames(namesData.names || []);
-          } else {
-            setBoysNames(namesData.names || []);
-          }
-          setNewName('');
-          alert('Nom ajouté avec succès !');
-        } else {
-          alert('Ce nom existe déjà dans la base de données');
-        }
+      if (!response.ok) throw new Error(data.error || 'Le prénom n’a pas pu être ajouté.');
+      if (data.created) {
+        setNames((current) => ({
+          ...current,
+          [activeGender]: [...current[activeGender], data.name],
+        }));
+        setNewName('');
+        setNotice({ tone: 'success', message: `${data.name.name} a été ajouté à la sélection.` });
       } else {
-        alert(data.error || 'Erreur lors de l\'ajout du nom');
+        setNotice({ tone: 'error', message: `${data.name.name} figure déjà dans cette sélection.` });
       }
     } catch (error) {
-      console.error('Error adding name:', error);
-      alert('Erreur lors de l\'ajout du nom');
+      setNotice({ tone: 'error', message: error instanceof Error ? error.message : 'L’ajout a échoué.' });
     } finally {
-      setIsAdding(false);
+      setIsSaving(false);
     }
   };
 
-  const handleDeleteName = async (id: string, gender: Gender) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce nom ?')) {
-      return;
-    }
-
+  const deleteName = async (name: Name) => {
+    setDeletingId(name.id);
+    setNotice(null);
     try {
-      const response = await fetch(`/api/names/${id}?gender=${gender}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Recharger les noms pour ce genre
-        const namesResponse = await fetch(`/api/names?gender=${gender}`);
-        const namesData = await namesResponse.json();
-        if (gender === 'girl') {
-          setGirlsNames(namesData.names || []);
-        } else {
-          setBoysNames(namesData.names || []);
-        }
-        alert('Nom supprimé avec succès !');
-      } else {
+      const response = await fetch(`/api/names/${name.id}?gender=${activeGender}`, { method: 'DELETE' });
+      if (!response.ok) {
         const data = await response.json();
-        alert(data.error || 'Erreur lors de la suppression du nom');
+        throw new Error(data.error || 'La suppression a échoué.');
       }
+      setNames((current) => ({
+        ...current,
+        [activeGender]: current[activeGender].filter((item) => item.id !== name.id),
+      }));
+      setPendingDeleteId(null);
+      setNotice({ tone: 'success', message: `${name.name} a été retiré de la sélection.` });
     } catch (error) {
-      console.error('Error deleting name:', error);
-      alert('Erreur lors de la suppression du nom');
+      setNotice({ tone: 'error', message: error instanceof Error ? error.message : 'La suppression a échoué.' });
+    } finally {
+      setDeletingId(null);
     }
   };
-
-  const currentNames = activeGender === 'girl' ? girlsNames : boysNames;
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
-      <div className="w-full max-w-4xl space-y-6">
-        <Card className="shadow-xl">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-3xl font-bold">Gestion de la base de données</CardTitle>
-                <CardDescription className="text-base mt-2">
-                  Ajoutez ou supprimez des prénoms dans la base de données
-                </CardDescription>
-              </div>
-              <Button onClick={() => router.push('/')} variant="outline">
-                Retour à l'accueil
+    <main className="min-h-screen bg-[#f7f1e8] px-4 py-6 text-stone-900 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-6xl">
+        <Button onClick={() => router.back()} variant="ghost" className="-ml-3 text-stone-600">
+          <ArrowLeft aria-hidden="true" /> Retour
+        </Button>
+
+        <header className="mt-8 max-w-2xl">
+          <h1 className="font-serif text-5xl tracking-[-0.04em] sm:text-6xl">Votre sélection</h1>
+          <p className="mt-4 text-lg leading-8 text-stone-600">
+            Ajoutez les prénoms qui comptent pour vous. Ils seront disponibles dans le prochain tournoi.
+          </p>
+        </header>
+
+        <div className="mt-10 grid gap-6 lg:grid-cols-[19rem_1fr]">
+          <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)]">
+            <div className="grid grid-cols-2 gap-2" role="tablist" aria-label="Type de prénoms">
+              {(['girl', 'boy'] as const).map((gender) => (
+                <Button
+                  key={gender}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeGender === gender}
+                  variant={activeGender === gender ? 'default' : 'ghost'}
+                  onClick={() => {
+                    setActiveGender(gender);
+                    setQuery('');
+                    setNotice(null);
+                  }}
+                  className={activeGender === gender ? 'bg-stone-900 text-white hover:bg-stone-800' : ''}
+                >
+                  {gender === 'girl' ? 'Filles' : 'Garçons'}
+                  <span className="tabular-nums opacity-70">{names[gender].length}</span>
+                </Button>
+              ))}
+            </div>
+
+            <form onSubmit={addName} className="mt-6 space-y-3">
+              <label htmlFor="new-name" className="text-sm font-semibold">Ajouter un prénom</label>
+              <Input
+                id="new-name"
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                placeholder="Ex. Charlie"
+                maxLength={60}
+                disabled={isSaving}
+                className="h-11 bg-white text-base"
+              />
+              <Button type="submit" disabled={isSaving || !newName.trim()} className="h-11 w-full bg-rose-700 text-white hover:bg-rose-800">
+                {isSaving ? <RefreshCw aria-hidden="true" className="animate-spin" /> : <Plus aria-hidden="true" />}
+                {isSaving ? 'Ajout…' : 'Ajouter'}
               </Button>
+            </form>
+          </aside>
+
+          <section aria-label={`Prénoms de ${activeGender === 'girl' ? 'filles' : 'garçons'}`} className="min-w-0 rounded-2xl border border-white/80 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-7">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="font-serif text-3xl tracking-[-0.03em]">
+                Prénoms de {activeGender === 'girl' ? 'filles' : 'garçons'}
+              </h2>
+              <label className="relative block">
+                <span className="sr-only">Rechercher un prénom</span>
+                <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-stone-500" />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Rechercher"
+                  className="h-10 bg-white pl-9 text-base sm:w-56"
+                />
+              </label>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="flex gap-2 border-b">
-                <Button
-                  variant={activeGender === 'girl' ? 'default' : 'ghost'}
-                  onClick={() => setActiveGender('girl')}
-                  className="rounded-b-none"
-                >
-                  👧 Filles
-                </Button>
-                <Button
-                  variant={activeGender === 'boy' ? 'default' : 'ghost'}
-                  onClick={() => setActiveGender('boy')}
-                  className="rounded-b-none"
-                >
-                  👦 Garçons
-                </Button>
+
+            {notice && (
+              <p
+                role={notice.tone === 'error' ? 'alert' : 'status'}
+                className={`mt-5 rounded-lg px-3 py-2 text-sm ${notice.tone === 'error' ? 'bg-red-50 text-red-900' : 'bg-emerald-50 text-emerald-900'}`}
+              >
+                {notice.message}
+              </p>
+            )}
+
+            {isLoading ? (
+              <div className="flex min-h-64 items-center justify-center text-stone-600">
+                <RefreshCw aria-hidden="true" className="mr-2 animate-spin" /> Chargement des prénoms…
               </div>
-
-              {activeGender === 'girl' && (
-                <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Ajouter un prénom de fille</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex gap-2">
-                    <Input
-                      placeholder="Entrez un prénom"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddName('girl');
-                        }
-                      }}
-                    />
-                    <Button onClick={() => handleAddName('girl')} disabled={isAdding}>
-                      Ajouter
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      Liste des prénoms de filles ({currentNames.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoading ? (
-                      <p className="text-center text-muted-foreground">Chargement...</p>
-                    ) : currentNames.length === 0 ? (
-                      <p className="text-center text-muted-foreground">
-                        Aucun prénom dans la base de données
-                      </p>
+            ) : filteredNames.length === 0 ? (
+              <div className="flex min-h-64 flex-col items-center justify-center text-center">
+                <p className="font-semibold text-stone-800">{query ? 'Aucun prénom ne correspond.' : 'La sélection est vide.'}</p>
+                <p className="mt-1 text-sm text-stone-600">{query ? 'Essayez une autre recherche.' : 'Ajoutez votre premier prénom depuis le formulaire.'}</p>
+              </div>
+            ) : (
+              <ul className="mt-6 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {filteredNames.map((name) => (
+                  <li key={name.id} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-stone-100 bg-white px-4 py-3">
+                    <span className="min-w-0 truncate font-medium" title={name.name}>{name.name}</span>
+                    {pendingDeleteId === name.id ? (
+                      <span className="flex shrink-0 items-center gap-1">
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setPendingDeleteId(null)}>Annuler</Button>
+                        <Button type="button" variant="destructive" size="sm" onClick={() => deleteName(name)} disabled={deletingId === name.id}>
+                          {deletingId === name.id ? <RefreshCw aria-hidden="true" className="animate-spin" /> : 'Confirmer'}
+                        </Button>
+                      </span>
                     ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        {currentNames.map((name) => (
-                          <div
-                            key={name.id}
-                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
-                          >
-                            <span className="font-medium">{name.name}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteName(name.id, 'girl')}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              ✕
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setPendingDeleteId(name.id)}
+                        aria-label={`Supprimer ${name.name}`}
+                        className="text-stone-400 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Trash2 aria-hidden="true" />
+                      </Button>
                     )}
-                  </CardContent>
-                </Card>
-                </div>
-              )}
-
-              {activeGender === 'boy' && (
-                <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Ajouter un prénom de garçon</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex gap-2">
-                    <Input
-                      placeholder="Entrez un prénom"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddName('boy');
-                        }
-                      }}
-                    />
-                    <Button onClick={() => handleAddName('boy')} disabled={isAdding}>
-                      Ajouter
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      Liste des prénoms de garçons ({currentNames.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoading ? (
-                      <p className="text-center text-muted-foreground">Chargement...</p>
-                    ) : currentNames.length === 0 ? (
-                      <p className="text-center text-muted-foreground">
-                        Aucun prénom dans la base de données
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        {currentNames.map((name) => (
-                          <div
-                            key={name.id}
-                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
-                          >
-                            <span className="font-medium">{name.name}</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteName(name.id, 'boy')}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              ✕
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

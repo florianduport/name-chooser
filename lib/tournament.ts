@@ -17,8 +17,16 @@ export function hasDuplicates<T>(array: T[]): boolean {
 
 // Créer un nouveau tournoi avec une liste de noms
 export function createTournament(names: string[]): TournamentState {
-  // Éliminer les doublons au cas où (sécurité)
-  const uniqueNames = Array.from(new Set(names));
+  const seen = new Set<string>();
+  const uniqueNames = names
+    .map((name) => name.trim().replace(/\s+/g, ' '))
+    .filter((name) => {
+      if (!name) return false;
+      const key = name.toLocaleLowerCase('fr');
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   
   // Mélanger les noms pour rendre le tournoi plus intéressant
   const shuffledNames = shuffleArray(uniqueNames);
@@ -31,10 +39,9 @@ export function createTournament(names: string[]): TournamentState {
 }
 
 // Obtenir les deux ou trois prochains noms à comparer
-// Au round 1, si le nombre est impair, on fait un duel à 3 pour rééquilibrer
+// Si le nombre est impair, un duel à trois évite un passage automatique.
 export function getCurrentPair(tournament: TournamentState): [string, string] | [string, string, string] | null {
-  // Au round 1, si le nombre est impair (>= 3), on fait un duel à 3
-  if (tournament.currentRound === 1 && tournament.remainingNames.length >= 3 && tournament.remainingNames.length % 2 === 1) {
+  if (tournament.remainingNames.length >= 3 && tournament.remainingNames.length % 2 === 1) {
     return [
       tournament.remainingNames[0],
       tournament.remainingNames[1],
@@ -89,8 +96,6 @@ export function selectWinner(
   // Si c'est un duel classique (2 noms) — winnerIndex est nécessairement 0 ou 1
   const idx = winnerIndex as 0 | 1;
   const winner = pair[idx];
-  const loser = pair[1 - idx];
-  
   // Retirer les deux noms de la liste restante (slice(2) retire les 2 premiers)
   const newRemainingNames = tournament.remainingNames.slice(2);
   
@@ -146,5 +151,11 @@ export function getWinner(tournament: TournamentState): string | null {
 
 // Obtenir le nombre total de rounds nécessaires
 export function getTotalRounds(namesCount: number): number {
-  return Math.ceil(Math.log2(namesCount));
+  let rounds = 0;
+  let remaining = Math.max(0, namesCount);
+  while (remaining > 1) {
+    remaining = Math.floor(remaining / 2);
+    rounds += 1;
+  }
+  return rounds;
 }

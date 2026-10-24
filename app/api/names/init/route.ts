@@ -8,7 +8,7 @@ export async function GET() {
     const girlsCount = db.girls.length;
     
     return NextResponse.json({ 
-      initialized: boysCount > 0 || girlsCount > 0,
+      initialized: boysCount > 0 && girlsCount > 0,
       boysCount,
       girlsCount 
     });
