@@ -9,6 +9,7 @@ if (!connectionString) {
 
 const pool = new Pool({
   connectionString,
+  connectionTimeoutMillis: 5_000,
   ssl: process.env.DATABASE_SSL === 'true'
     ? { rejectUnauthorized: false }
     : undefined,
@@ -108,8 +109,22 @@ CREATE TABLE IF NOT EXISTS tournament_votes (
 `;
 
 try {
-  await pool.query(migration);
-  console.log('Database migrations complete');
+  let lastError;
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    try {
+      await pool.query(migration);
+      console.log('Database migrations complete');
+      lastError = undefined;
+      break;
+    } catch (error) {
+      lastError = error;
+      console.error(`Migration attempt ${attempt}/10 failed`);
+      if (attempt < 10) {
+        await new Promise((resolve) => setTimeout(resolve, 3_000));
+      }
+    }
+  }
+  if (lastError) throw lastError;
 } finally {
   await pool.end();
 }
