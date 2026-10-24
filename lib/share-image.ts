@@ -1,6 +1,6 @@
 export type ShareImageFormat = 'story' | 'square';
 
-const DIMENSIONS: Record<ShareImageFormat, [number, number]> = {
+export const SHARE_IMAGE_DIMENSIONS: Record<ShareImageFormat, readonly [number, number]> = {
   story: [1080, 1920],
   square: [1080, 1080],
 };
@@ -9,7 +9,7 @@ export async function createResultImage(
   winner: string,
   format: ShareImageFormat,
 ): Promise<File> {
-  const [width, height] = DIMENSIONS[format];
+  const [width, height] = SHARE_IMAGE_DIMENSIONS[format];
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
