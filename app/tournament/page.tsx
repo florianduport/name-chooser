@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import ModeSelection from '@/components/ModeSelection';
 import NameListInput from '@/components/NameListInput';
 import TournamentBracket from '@/components/TournamentBracket';
@@ -13,24 +14,24 @@ type TournamentPhase = 'mode-selection' | 'name-input' | 'tournament' | 'loading
 function TournamentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const gender = (searchParams.get('gender') as Gender) || 'boy';
+    const genderParam = searchParams.get('gender');
+    const gender: Gender = genderParam === 'girl' ? 'girl' : 'boy';
     const [phase, setPhase] = useState<TournamentPhase>('mode-selection');
-    const [mode, setMode] = useState<TournamentMode | null>(null);
     const [names, setNames] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (gender !== 'boy' && gender !== 'girl') {
-            router.push('/');
+        if (genderParam !== 'boy' && genderParam !== 'girl') {
+            router.replace('/');
         }
-    }, [gender, router]);
+    }, [genderParam, router]);
 
     const handleModeSelect = (selectedMode: TournamentMode | 'manage') => {
+        setError(null);
         if (selectedMode === 'manage') {
             router.push('/manage');
             return;
         }
-        setMode(selectedMode);
         if (selectedMode === 'database') {
             loadNamesFromDatabase();
         } else {
@@ -39,67 +40,52 @@ function TournamentContent() {
     };
 
     const loadNamesFromDatabase = async () => {
-        setIsLoading(true);
         setPhase('loading');
+        setError(null);
         try {
-            // Vérifier si la base est initialisée
-            const initCheck = await fetch('/api/names/init');
-            const initData = await initCheck.json();
+            let response = await fetch(`/api/names?gender=${gender}`);
+            if (!response.ok) throw new Error('Impossible de lire les prénoms enregistrés.');
+            let data = await response.json();
 
-            if (!initData.initialized) {
-                // Initialiser la base de données
+            if (!data.names?.length) {
                 const seedResponse = await fetch('/api/names/seed', { method: 'POST' });
                 if (!seedResponse.ok) {
-                    throw new Error('Erreur lors de l\'initialisation');
+                    throw new Error('Impossible d’initialiser la sélection de prénoms.');
                 }
+                response = await fetch(`/api/names?gender=${gender}`);
+                if (!response.ok) throw new Error('Impossible de lire les prénoms enregistrés.');
+                data = await response.json();
             }
 
-            const response = await fetch(`/api/names?gender=${gender}`);
-            const data = await response.json();
             if (data.names && data.names.length > 0) {
                 const nameList = data.names.map((n: { name: string }) => n.name);
                 setNames(nameList);
                 setPhase('tournament');
             } else {
-                alert('Aucun prénom trouvé dans la base de données');
-                setPhase('mode-selection');
+                throw new Error('Aucun prénom n’est disponible. Ajoutez-en depuis la page de gestion.');
             }
         } catch (error) {
             console.error('Error loading names:', error);
-            alert('Erreur lors du chargement des noms');
+            setError(error instanceof Error ? error.message : 'Le chargement a échoué.');
             setPhase('mode-selection');
-        } finally {
-            setIsLoading(false);
         }
     };
 
-    const handleCustomNamesConfirm = async (customNames: string[]) => {
-        setIsLoading(true);
+    const handleCustomNamesConfirm = async (customNames: string[], saveNames: boolean) => {
+        setError(null);
         try {
-            // Vérifier quels noms existent déjà dans la base
-            const response = await fetch('/api/names/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ names: customNames, gender }),
-            });
-
-            const data = await response.json();
-
-            // Si certains noms n'existent pas, proposer de les ajouter
-            if (data.newNames && data.newNames.length > 0) {
-                const shouldAdd = confirm(
-                    `${data.newNames.length} prénom(s) n'existent pas dans la base de données. Souhaitez-vous les ajouter ?`
-                );
-
-                if (shouldAdd) {
-                    // Ajouter les nouveaux noms
-                    for (const name of data.newNames) {
-                        await fetch('/api/names', {
+            if (saveNames) {
+                const responses = await Promise.all(
+                    customNames.map((name) =>
+                        fetch('/api/names', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ name, gender }),
-                        });
-                    }
+                        }),
+                    ),
+                );
+                if (responses.some((response) => !response.ok)) {
+                    throw new Error('Certains prénoms n’ont pas pu être enregistrés. Réessayez.');
                 }
             }
 
@@ -107,9 +93,7 @@ function TournamentContent() {
             setPhase('tournament');
         } catch (error) {
             console.error('Error processing names:', error);
-            alert('Erreur lors du traitement des noms');
-        } finally {
-            setIsLoading(false);
+            setError(error instanceof Error ? error.message : 'La préparation du tournoi a échoué.');
         }
     };
 
@@ -126,22 +110,27 @@ function TournamentContent() {
 
     if (phase === 'loading') {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900">
+            <div className="flex min-h-screen items-center justify-center bg-[#f7f1e8]">
                 <div className="text-center space-y-4">
-                    <div className="text-4xl animate-bounce">⏳</div>
-                    <p className="text-xl">Chargement des prénoms...</p>
+                    <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
+                    <p className="text-lg text-stone-700">Préparation de votre tournoi…</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
+        <main className="min-h-screen bg-[#f7f1e8] p-4 text-stone-900 sm:p-6">
             <div className="max-w-4xl mx-auto">
+                {error && (
+                    <div role="alert" className="mx-auto mt-4 max-w-2xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+                        {error}
+                    </div>
+                )}
                 {phase === 'mode-selection' && (
                     <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
                         <Button onClick={handleBack} variant="ghost" className="self-start">
-                            ← Retour
+                            <ArrowLeft aria-hidden="true" /> Retour
                         </Button>
                         <ModeSelection onModeSelect={handleModeSelect} gender={gender} />
                     </div>
@@ -150,7 +139,7 @@ function TournamentContent() {
                 {phase === 'name-input' && (
                     <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
                         <Button onClick={handleBack} variant="ghost" className="self-start">
-                            ← Retour
+                            <ArrowLeft aria-hidden="true" /> Retour
                         </Button>
                         <NameListInput onConfirm={handleCustomNamesConfirm} gender={gender} />
                     </div>
@@ -160,17 +149,17 @@ function TournamentContent() {
                     <TournamentBracket initialNames={names} gender={gender} />
                 )}
             </div>
-        </div>
+        </main>
     );
 }
 
 export default function TournamentPage() {
     return (
         <Suspense fallback={
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900">
-                <div className="text-center space-y-4">
-                    <div className="text-4xl animate-bounce">⏳</div>
-                    <p className="text-xl">Chargement...</p>
+            <div className="flex min-h-screen items-center justify-center bg-[#f7f1e8]">
+                <div className="space-y-4 text-center">
+                    <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
+                    <p className="text-lg text-stone-700">Chargement…</p>
                 </div>
             </div>
         }>

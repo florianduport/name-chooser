@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { nameExists, getNames } from '@/lib/db';
-import { Gender } from '@/types';
+import { getNames, normalizeName, validateName } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { names, gender } = body;
     
-    if (!Array.isArray(names)) {
+    if (!Array.isArray(names) || names.length < 2 || names.length > 256) {
       return NextResponse.json(
-        { error: 'names doit être un tableau' },
+        { error: 'La liste doit contenir entre 2 et 256 prénoms' },
         { status: 400 }
       );
     }
@@ -21,18 +20,27 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    const invalidName = names.find((name) => validateName(name));
+    if (invalidName !== undefined) {
+      return NextResponse.json(
+        { error: validateName(invalidName) },
+        { status: 400 },
+      );
+    }
+
+    const storedNames = await getNames(gender);
+    const storedKeys = new Set(
+      storedNames.map((item) => item.name.toLocaleLowerCase('fr')),
+    );
     const existingNames: string[] = [];
     const newNames: string[] = [];
-    
-    for (const name of names) {
-      const trimmedName = name.trim();
-      if (trimmedName) {
-        const exists = await nameExists(trimmedName, gender);
-        if (exists) {
-          existingNames.push(trimmedName);
-        } else {
-          newNames.push(trimmedName);
-        }
+
+    for (const value of names) {
+      const name = normalizeName(value);
+      if (storedKeys.has(name.toLocaleLowerCase('fr'))) {
+        existingNames.push(name);
+      } else {
+        newNames.push(name);
       }
     }
     

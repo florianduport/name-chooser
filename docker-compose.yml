@@ -1,0 +1,4 @@
+# Compatibility entrypoint for deployments that explicitly use
+# `docker compose -f docker-compose.yml ...`.
+include:
+  - compose.yaml

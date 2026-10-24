@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getNames, addName, nameExists } from '@/lib/db';
+import { addName, getNames, validateName } from '@/lib/db';
 import { Gender } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -30,9 +30,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, gender } = body;
     
-    if (!name || typeof name !== 'string') {
+    const validationError = validateName(name);
+    if (validationError) {
       return NextResponse.json(
-        { error: 'Le nom est requis' },
+        { error: validationError },
         { status: 400 }
       );
     }
@@ -44,18 +45,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Vérifier si le nom existe déjà
-    const exists = await nameExists(name, gender);
-    if (exists) {
-      const names = await getNames(gender);
-      const existingName = names.find(
-        (n) => n.name.toLowerCase() === name.toLowerCase()
-      );
-      return NextResponse.json({ name: existingName, created: false });
-    }
-    
-    const newName = await addName(name, gender);
-    return NextResponse.json({ name: newName, created: true }, { status: 201 });
+    const result = await addName(name, gender);
+    return NextResponse.json(result, { status: result.created ? 201 : 200 });
   } catch (error) {
     console.error('Error adding name:', error);
     return NextResponse.json(

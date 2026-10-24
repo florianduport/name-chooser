@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Notre prénom
 
-## Getting Started
+A private baby-name chooser for Cindy and Florian. Start with the curated French name list or enter a shortlist, then choose between two or three names at a time until one favorite remains.
 
-First, run the development server:
+## Features
+
+- Curated girl and boy name lists with persistent additions
+- Custom tournaments with optional saving of new names
+- Fair handling of odd-sized rounds through three-name choices
+- Choice history and rollback to any previous duel
+- Searchable name management with guarded deletion
+- Responsive, keyboard-accessible interface
+- Production health endpoint at `/api/health`
+
+## Local development
+
+Requires Node.js 22 or newer.
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The local datastore is `data/names.json`. Override it with `DATA_FILE_PATH=/path/to/names.json` when needed.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Quality checks
 
-## Learn More
+```bash
+npm test
+npm run lint
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [DEPLOY.md](DEPLOY.md) for production deployment, persistence, backups, and reverse-proxy guidance.
