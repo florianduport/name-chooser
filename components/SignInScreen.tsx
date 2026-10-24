@@ -4,7 +4,15 @@ import { signIn } from 'next-auth/react';
 import { ArrowRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function SignInScreen() {
+export default function SignInScreen({
+  callbackUrl,
+  title = 'Trouvez le prénom qui vous ressemble.',
+  description = 'Comparez, choisissez et retrouvez vos résultats. Vos listes et vos préférences restent privées.',
+}: {
+  callbackUrl?: string;
+  title?: string;
+  description?: string;
+}) {
   return (
     <main className="relative flex min-h-dvh items-center overflow-hidden bg-[#f7f1e8] px-5 py-8 text-stone-900">
       <div aria-hidden="true" className="absolute -right-24 -top-32 size-80 rounded-full bg-rose-200/50 blur-3xl" />
@@ -14,13 +22,13 @@ export default function SignInScreen() {
           <Heart aria-hidden="true" className="size-5" fill="currentColor" />
         </div>
         <h1 className="mt-5 font-serif text-4xl tracking-[-0.04em] sm:text-6xl">
-          Trouvez le prénom qui vous ressemble.
+          {title}
         </h1>
         <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-stone-600 sm:text-base sm:leading-7">
-          Comparez, choisissez et retrouvez vos résultats. Vos listes et vos préférences restent privées.
+          {description}
         </p>
         <Button
-          onClick={() => signIn('google')}
+          onClick={() => signIn('google', { redirectTo: callbackUrl ?? '/' })}
           className="mt-7 h-12 w-full rounded-xl bg-stone-900 text-base text-white hover:bg-stone-800"
         >
           Continuer avec Google <ArrowRight aria-hidden="true" />

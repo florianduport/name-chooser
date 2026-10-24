@@ -95,6 +95,32 @@ CREATE TABLE IF NOT EXISTS tournaments (
 CREATE INDEX IF NOT EXISTS tournaments_user_created
   ON tournaments (user_id, created_at DESC);
 
+ALTER TABLE tournaments
+  ADD COLUMN IF NOT EXISTS share_token UUID;
+CREATE UNIQUE INDEX IF NOT EXISTS tournaments_share_token
+  ON tournaments (share_token)
+  WHERE share_token IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS tournament_invites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  token UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+  owner_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  source_tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+  gender VARCHAR(4) NOT NULL CHECK (gender IN ('boy', 'girl')),
+  mode VARCHAR(16) NOT NULL CHECK (mode IN ('database', 'custom')),
+  names JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '30 days')
+);
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_invites_source_owner
+  ON tournament_invites (owner_user_id, source_tournament_id);
+
+ALTER TABLE tournaments
+  ADD COLUMN IF NOT EXISTS invite_id UUID REFERENCES tournament_invites(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS tournaments_invite
+  ON tournaments (invite_id, completed_at DESC)
+  WHERE invite_id IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS tournament_votes (
   id BIGSERIAL PRIMARY KEY,
   tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,

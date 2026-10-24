@@ -8,6 +8,8 @@ A private, multi-user baby-name tournament. Sign in with Google, start from the 
 - Official 2025 French default dataset: INSEE ranks 1–50 by sex (100 names total)
 - Custom name lists with persistent additions and removals
 - Persisted tournament votes, rollback, winners, and private result history
+- Shareable Story and square result images with native mobile sharing and social fallbacks
+- Tokenized invitations that let another signed-in user take the same tournament and compare results
 - Compact mobile layouts with large tap targets
 - PostgreSQL persistence with automatic startup migrations
 - Production health endpoint at `/api/health`

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import ModeSelection from '@/components/ModeSelection';
@@ -15,18 +15,39 @@ function TournamentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const genderParam = searchParams.get('gender');
-    const gender: Gender = genderParam === 'girl' ? 'girl' : 'boy';
-    const [phase, setPhase] = useState<TournamentPhase>('mode-selection');
+    const inviteToken = searchParams.get('invite');
+    const [gender, setGender] = useState<Gender>(genderParam === 'girl' ? 'girl' : 'boy');
+    const [phase, setPhase] = useState<TournamentPhase>(inviteToken ? 'loading' : 'mode-selection');
     const [names, setNames] = useState<string[]>([]);
     const [tournamentId, setTournamentId] = useState<string | null>(null);
     const [tournamentMode, setTournamentMode] = useState<TournamentMode | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const inviteStarted = useRef(false);
 
     useEffect(() => {
+        if (inviteToken) {
+            if (inviteStarted.current) return;
+            inviteStarted.current = true;
+            fetch(`/api/invites/${inviteToken}/accept`, { method: 'POST' })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Invitation invalide.');
+                    setGender(data.gender);
+                    setNames(data.names);
+                    setTournamentId(data.id);
+                    setTournamentMode(data.mode);
+                    setPhase('tournament');
+                })
+                .catch((error: unknown) => {
+                    setError(error instanceof Error ? error.message : 'Impossible d’ouvrir cette invitation.');
+                    setPhase('mode-selection');
+                });
+            return;
+        }
         if (genderParam !== 'boy' && genderParam !== 'girl') {
             router.replace('/');
         }
-    }, [genderParam, router]);
+    }, [genderParam, inviteToken, router]);
 
     const handleModeSelect = (selectedMode: TournamentMode | 'manage') => {
         setError(null);

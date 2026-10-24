@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, Check, Crown, RotateCcw, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import WinnerActions from '@/components/WinnerActions';
 import {
   createTournament,
   getCurrentPair,
@@ -151,6 +152,7 @@ export default function TournamentBracket({
             Après {history.length} choix, ce prénom arrive en tête de votre sélection.
           </p>
           {error && <p role="alert" className="mt-3 text-sm text-red-800">{error}</p>}
+          <WinnerActions winner={winner} tournamentId={activeTournamentId} />
           <div className="mt-4 grid grid-cols-2 justify-center gap-2 sm:mt-8 sm:flex sm:gap-3">
             <Button onClick={restart} disabled={isSaving} variant="outline" size="lg" className="h-12 whitespace-normal rounded-xl bg-white">
               <RotateCcw aria-hidden="true" /> Rejouer

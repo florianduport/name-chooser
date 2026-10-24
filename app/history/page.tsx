@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, Trophy } from 'lucide-react';
+import { ArrowLeft, Trophy, Users } from 'lucide-react';
 import { auth } from '@/auth';
 import { getTournamentResults } from '@/lib/tournaments-db';
 import { Button } from '@/components/ui/button';
@@ -40,9 +40,16 @@ export default async function HistoryPage() {
                     {result.choices} choix · {result.mode === 'database' ? 'Top 2025' : 'Liste personnalisée'}
                   </p>
                 </div>
-                <time className="shrink-0 text-xs text-stone-500" dateTime={result.completedAt}>
-                  {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(result.completedAt))}
-                </time>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <time className="text-xs text-stone-500" dateTime={result.completedAt}>
+                    {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(result.completedAt))}
+                  </time>
+                  {result.inviteToken && (
+                    <Button asChild variant="ghost" size="sm" className="h-8 text-xs">
+                      <Link href={`/invites/${result.inviteToken}`}><Users aria-hidden="true" /> Comparer</Link>
+                    </Button>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
