@@ -13,8 +13,24 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Notre prénom · Cindy & Florian",
-  description: "Un tournoi à deux pour faire émerger votre prénom préféré.",
+  metadataBase: new URL(process.env.AUTH_URL ?? "http://localhost:3000"),
+  applicationName: "LeBabyName",
+  title: {
+    default: "LeBabyName · Trouvez votre favori",
+    template: "%s · LeBabyName",
+  },
+  description: "Comparez des prénoms et faites émerger votre favori grâce à un tournoi privé.",
+  openGraph: {
+    type: "website",
+    siteName: "LeBabyName",
+    title: "LeBabyName · Trouvez votre favori",
+    description: "Comparez des prénoms et faites émerger votre favori grâce à un tournoi privé.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LeBabyName · Trouvez votre favori",
+    description: "Comparez des prénoms et faites émerger votre favori grâce à un tournoi privé.",
+  },
 };
 
 export default function RootLayout({

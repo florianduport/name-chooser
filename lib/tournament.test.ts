@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createTournament,
   getCurrentPair,
+  getRoundProgress,
+  getTotalDuels,
   getTotalRounds,
   getWinner,
   isTournamentComplete,
@@ -54,5 +56,27 @@ describe('tournament', () => {
     expect(getTotalRounds(3)).toBe(1);
     expect(getTotalRounds(7)).toBe(2);
     expect(getTotalRounds(8)).toBe(3);
+  });
+
+  it('advances round progress after every duel', () => {
+    const start = {
+      currentRound: 1,
+      remainingNames: Array.from({ length: 44 }, (_, index) => `Name ${index}`),
+      selectedNames: [],
+    };
+    expect(getRoundProgress(start)).toEqual({ current: 1, total: 22 });
+
+    const afterTwoDuels = {
+      ...start,
+      remainingNames: start.remainingNames.slice(4),
+      selectedNames: ['Name 0', 'Name 2'],
+    };
+    expect(getRoundProgress(afterTwoDuels)).toEqual({ current: 3, total: 22 });
+  });
+
+  it('reports overall duel progress for pair and triplet rounds', () => {
+    expect(getTotalDuels(2)).toBe(1);
+    expect(getTotalDuels(3)).toBe(1);
+    expect(getTotalDuels(50)).toBe(47);
   });
 });

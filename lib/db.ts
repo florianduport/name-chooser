@@ -1,35 +1,12 @@
-import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
-import { mkdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { randomUUID } from 'node:crypto';
-import { NamesDatabase, Name, Gender } from '@/types';
+import type { PoolClient } from 'pg';
+import { pool } from '@/lib/postgres';
+import {
+  DEFAULT_DATASET_VERSION,
+  getDefaultNames,
+} from '@/lib/seed-data';
+import type { Gender, Name } from '@/types';
 
 export const MAX_NAME_LENGTH = 60;
-
-const file = process.env.DATA_FILE_PATH || join(process.cwd(), 'data', 'names.json');
-const adapter = new JSONFile<NamesDatabase>(file);
-const database = new Low(adapter, { boys: [], girls: [] });
-let initialized = false;
-let mutationQueue = Promise.resolve();
-
-async function ensureDatabase() {
-  if (!initialized) {
-    await mkdir(dirname(file), { recursive: true });
-    await database.read();
-    if (!database.data) {
-      database.data = { boys: [], girls: [] };
-      await database.write();
-    }
-    initialized = true;
-  }
-}
-
-function withMutation<T>(operation: () => Promise<T>): Promise<T> {
-  const result = mutationQueue.then(operation, operation);
-  mutationQueue = result.then(() => undefined, () => undefined);
-  return result;
-}
 
 export function normalizeName(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
@@ -45,85 +22,129 @@ export function validateName(value: unknown): string | null {
   return null;
 }
 
-export async function getNames(gender: Gender): Promise<Name[]> {
-  await mutationQueue;
-  await ensureDatabase();
-  await database.read();
-  return [...database.data[gender === 'boy' ? 'boys' : 'girls']];
-}
-
-export async function addName(
-  name: string,
-  gender: Gender,
-): Promise<{ name: Name; created: boolean }> {
-  return withMutation(async () => {
-    await ensureDatabase();
-    await database.read();
-    const normalizedName = normalizeName(name);
-    const namesArray = gender === 'boy' ? database.data.boys : database.data.girls;
-    const existingName = namesArray.find(
-      (item) => item.name.localeCompare(normalizedName, 'fr', { sensitivity: 'base' }) === 0,
+async function ensureUserDataset(userId: number) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock($1)', [userId]);
+    const dataset = await client.query<{ dataset_version: string }>(
+      'SELECT dataset_version FROM user_datasets WHERE user_id = $1 FOR UPDATE',
+      [userId],
     );
 
-    if (existingName) return { name: existingName, created: false };
-
-    const newName: Name = {
-      id: randomUUID(),
-      name: normalizedName,
-      gender,
-      createdAt: new Date().toISOString(),
-    };
-
-    namesArray.push(newName);
-    await database.write();
-    return { name: newName, created: true };
-  });
+    if (dataset.rows[0]?.dataset_version !== DEFAULT_DATASET_VERSION) {
+      await client.query('DELETE FROM user_names WHERE user_id = $1', [userId]);
+      await insertDefaults(client, userId, 'boy');
+      await insertDefaults(client, userId, 'girl');
+      await client.query(
+        `INSERT INTO user_datasets (user_id, dataset_version)
+         VALUES ($1, $2)
+         ON CONFLICT (user_id) DO UPDATE
+         SET dataset_version = EXCLUDED.dataset_version,
+             initialized_at = NOW()`,
+        [userId, DEFAULT_DATASET_VERSION],
+      );
+    }
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
-export async function nameExists(name: string, gender: Gender): Promise<boolean> {
-  const normalizedName = normalizeName(name);
-  const names = await getNames(gender);
-  return names.some(
-    (item) => item.name.localeCompare(normalizedName, 'fr', { sensitivity: 'base' }) === 0,
+async function insertDefaults(
+  client: PoolClient,
+  userId: number,
+  gender: Gender,
+) {
+  const names = getDefaultNames(gender);
+  await client.query(
+    `INSERT INTO user_names (user_id, name, gender, source, source_rank)
+     SELECT $1, source.name, $2, 'insee-2025', source.rank
+     FROM UNNEST($3::text[]) WITH ORDINALITY AS source(name, rank)`,
+    [userId, gender, names],
   );
 }
 
-export async function addNames(names: string[], gender: Gender): Promise<Name[]> {
-  const results: Name[] = [];
-  for (const name of names) {
-    if (normalizeName(name)) {
-      results.push((await addName(name, gender)).name);
-    }
-  }
-  return results;
+export async function getNames(userId: number, gender: Gender): Promise<Name[]> {
+  await ensureUserDataset(userId);
+  const result = await pool.query<{
+    id: string;
+    name: string;
+    gender: Gender;
+    created_at: Date;
+  }>(
+    `SELECT id, name, gender, created_at
+     FROM user_names
+     WHERE user_id = $1 AND gender = $2
+     ORDER BY source_rank NULLS LAST, name`,
+    [userId, gender],
+  );
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    gender: row.gender,
+    createdAt: row.created_at.toISOString(),
+  }));
 }
 
-export async function getDb(): Promise<NamesDatabase> {
-  await mutationQueue;
-  await ensureDatabase();
-  await database.read();
-  return structuredClone(database.data);
+export async function addName(
+  userId: number,
+  name: string,
+  gender: Gender,
+): Promise<{ name: Name; created: boolean }> {
+  await ensureUserDataset(userId);
+  const normalizedName = normalizeName(name);
+  const inserted = await pool.query<{
+    id: string;
+    name: string;
+    gender: Gender;
+    created_at: Date;
+  }>(
+    `INSERT INTO user_names (user_id, name, gender)
+     VALUES ($1, $2, $3)
+     ON CONFLICT DO NOTHING
+     RETURNING id, name, gender, created_at`,
+    [userId, normalizedName, gender],
+  );
+
+  const row = inserted.rows[0] ?? (
+    await pool.query<{
+      id: string;
+      name: string;
+      gender: Gender;
+      created_at: Date;
+    }>(
+      `SELECT id, name, gender, created_at
+       FROM user_names
+       WHERE user_id = $1 AND gender = $2 AND LOWER(name) = LOWER($3)
+       LIMIT 1`,
+      [userId, gender, normalizedName],
+    )
+  ).rows[0];
+
+  return {
+    created: inserted.rowCount === 1,
+    name: {
+      id: row.id,
+      name: row.name,
+      gender: row.gender,
+      createdAt: row.created_at.toISOString(),
+    },
+  };
 }
 
-export async function writeDb(data: NamesDatabase): Promise<void> {
-  await withMutation(async () => {
-    await ensureDatabase();
-    database.data = structuredClone(data);
-    await database.write();
-  });
-}
-
-export async function deleteName(id: string, gender: Gender): Promise<boolean> {
-  return withMutation(async () => {
-    await ensureDatabase();
-    await database.read();
-    const key = gender === 'boy' ? 'boys' : 'girls';
-    const namesArray = database.data[key];
-    const initialLength = namesArray.length;
-    const filteredArray = namesArray.filter((name) => name.id !== id);
-    if (filteredArray.length === initialLength) return false;
-    database.data[key] = filteredArray;
-    await database.write();
-    return filteredArray.length < initialLength;
-  });
+export async function deleteName(
+  userId: number,
+  id: string,
+  gender: Gender,
+): Promise<boolean> {
+  const result = await pool.query(
+    'DELETE FROM user_names WHERE id = $1 AND user_id = $2 AND gender = $3',
+    [id, userId, gender],
+  );
+  return result.rowCount === 1;
 }

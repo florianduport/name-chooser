@@ -1,65 +1,85 @@
-# Production deployment with Coolify
+# LeBabyName Coolify production deployment
 
-The app runs as one hardened Next.js container. Its JSON datastore lives in a named Docker volume, so no separate database service is required. `docker-compose.yml` is designed for Coolify's Docker Compose build pack.
+The stack contains a standalone Next.js application and PostgreSQL 17. Coolify terminates HTTPS and routes the public domain to the app's internal port 3000. PostgreSQL is private to the Compose network and stores authentication, per-user name lists, votes, tournaments, and results.
 
-## Requirements
+## Owner setup checklist
 
-- A Coolify destination with Docker Engine 23+ and Docker Compose v2
-- A wildcard domain configured in Coolify, or a domain you assign to the `app` service
+### 1. Configure Google OAuth
 
-## Start the stack
+In Google Cloud Console:
 
-1. Create a new Coolify resource from this Git repository.
-2. Select the **Docker Compose** build pack and `docker-compose.yml`.
-3. Deploy. Coolify reads `SERVICE_FQDN_APP_3000`, creates a domain when a wildcard domain is available, and routes it to port 3000 in the `app` container.
-4. In Coolify, confirm the `app` service is healthy and open the generated domain.
+1. Create or select a project.
+2. Configure the OAuth consent screen.
+3. Create an **OAuth 2.0 Client ID** with application type **Web application**.
+4. Add this authorized JavaScript origin:
 
-The Compose file intentionally has no `ports:` binding. Port 3000 is exposed only to the Compose/Coolify network; Coolify's proxy is the public entrypoint.
+   `https://name-chooser.54.36.101.144.sslip.io`
 
-## Configuration
+5. Add this exact authorized redirect URI:
 
-| Variable | Managed by | Purpose |
-| --- | --- | --- |
-| `SERVICE_FQDN_APP_3000` | Coolify | Generates the public hostname and routes it to internal port 3000 |
-| `DATA_FILE_PATH` | Compose | Persistent datastore path, `/app/data/names.json` |
-| `HOSTNAME` / `PORT` | Compose | Makes Next.js listen on `0.0.0.0:3000` |
-| `NODE_ENV` | Compose | Enables the production runtime |
+   `https://name-chooser.54.36.101.144.sslip.io/api/auth/callback/google`
 
-No secret or user-supplied environment variable is required. Assign a custom domain to the `app` service in Coolify if you do not want the generated hostname.
+6. Copy the generated client ID and client secret into Coolify environment variables. Never commit either value.
 
-## Persistent data and backups
+### 2. Configure Coolify
 
-The named `namechooser-data` volume contains `names.json`. Coolify redeployments and container recreation preserve it. Do not remove this storage from Coolify or run `docker compose down --volumes` unless you intentionally want to erase all saved names.
+Create a resource from this repository, choose the **Docker Compose** build pack, and select `docker-compose.yml`. Set:
 
-Create a backup without exposing the datastore:
+| Variable | Required value |
+| --- | --- |
+| `GOOGLE_CLIENT_ID` | Google OAuth Web client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Web client secret |
+| `AUTH_SECRET` | Random secret generated with `openssl rand -base64 32` |
+| `AUTH_URL` | `https://name-chooser.54.36.101.144.sslip.io` |
+| `SERVICE_PASSWORD_POSTGRES` | Let Coolify generate this value, or provide a long random password |
+| `DATABASE_URL` | Optional override; Compose defaults to the internal PostgreSQL service URL |
+| `DATABASE_SSL` | Leave unset for the bundled database; set `true` only for an external database requiring TLS |
+
+The effective default database URL is:
+
+`postgresql://namechooser:<SERVICE_PASSWORD_POSTGRES>@db:5432/namechooser`
+
+`AUTH_URL` is the public origin, not the callback. Auth.js appends `/api/auth/callback/google`.
+
+### 3. Deploy
+
+Deploy from Coolify. The app container:
+
+1. waits for PostgreSQL to pass `pg_isready`;
+2. runs the idempotent SQL migration in `scripts/migrate.mjs`;
+3. starts the standalone Next.js server;
+4. becomes healthy after `/api/health` confirms database connectivity.
+
+`SERVICE_URL_APP_3000` and `SERVICE_FQDN_APP_3000` tell Coolify to route the generated or assigned domain to internal port 3000. There is intentionally no host `ports:` mapping.
+
+## Persistent data
+
+The `postgres-data` named volume contains all application and Auth.js data. Coolify redeployments and container recreation preserve it. Do not remove the storage or run `docker compose down --volumes` unless all users, lists, votes, and results should be permanently erased.
+
+The previous JSON datastore is no longer used. Every Google account receives a private copy of the official INSEE 2025 top 50 names per sex on first use.
+
+## Backup and restore
+
+Create a database backup:
 
 ```bash
-docker compose exec -T app cat /app/data/names.json > names-backup.json
+docker compose exec -T db pg_dump -U namechooser -d namechooser -Fc > namechooser.dump
 ```
 
 Restore during a maintenance window:
 
 ```bash
 docker compose stop app
-docker compose run --rm -T --entrypoint sh app -c 'cat > /app/data/names.json' < names-backup.json
+docker compose exec -T db pg_restore -U namechooser -d namechooser --clean --if-exists < namechooser.dump
 docker compose start app
 ```
 
-## Reverse proxy and access control
+## Updates and troubleshooting
 
-Coolify's proxy terminates TLS and forwards the generated/custom domain to the exposed container port. Do not add a host `ports:` mapping; it bypasses this routing and can expose the service directly.
+Use **Redeploy** in Coolify after merging. Migrations are safe to run again and execute on every app startup.
 
-The app has no account system because it is intended for Cindy and Florian. Enable access control at the Coolify proxy or restrict the domain to a private network before public exposure. The management and mutation API routes are otherwise reachable by anyone who can access the app.
-
-## Upgrade
-
-Use **Redeploy** in Coolify after merging or updating the tracked branch. Coolify rebuilds the image and reuses the named volume.
-
-The container health check uses `/api/health`. Review the `app` service logs in Coolify if its status is not `healthy`.
-
-For a non-Coolify smoke test on a Linux server:
-
-```bash
-docker compose up -d --build
-docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/health').then(async r => { console.log(await r.text()); process.exit(r.ok ? 0 : 1) })"
-```
+- Check the `db` service health if startup waits.
+- Check app logs for migration or OAuth errors.
+- Confirm `AUTH_URL` exactly matches the HTTPS origin.
+- Confirm the Google redirect URI exactly matches the callback above, including `/api/auth/callback/google`.
+- Confirm `/api/health` returns `{"status":"ok","database":"connected"}`.

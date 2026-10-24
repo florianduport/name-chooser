@@ -41,17 +41,17 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
   };
 
   return (
-    <Card className="w-full max-w-2xl border-white/70 bg-white/90 shadow-[0_24px_80px_-36px_rgba(77,48,38,0.45)]">
-      <CardHeader>
+    <Card className="w-full max-w-2xl gap-4 border-white/70 bg-white/90 py-4 shadow-[0_24px_80px_-36px_rgba(77,48,38,0.45)] sm:gap-6 sm:py-6">
+      <CardHeader className="px-4 sm:px-6">
         <div className="mb-2 flex size-11 items-center justify-center rounded-full bg-rose-100 text-rose-700">
           <ListChecks aria-hidden="true" className="size-5" />
         </div>
-        <CardTitle className="font-serif text-3xl tracking-[-0.03em]">Votre liste de prénoms</CardTitle>
+        <CardTitle className="font-serif text-2xl tracking-[-0.03em] sm:text-3xl">Votre liste de prénoms</CardTitle>
         <CardDescription>
           Un prénom par ligne, ou séparés par des virgules. Les doublons seront retirés automatiquement.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
         <label htmlFor="custom-names" className="text-sm font-semibold text-stone-700">
           Prénoms à comparer
         </label>
@@ -63,7 +63,7 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
             setInputValue(event.target.value);
             setError(null);
           }}
-          className="min-h-[200px] resize-y bg-white text-base"
+          className="min-h-[112px] resize-y bg-white text-base sm:min-h-[200px]"
           disabled={isLoading}
           maxLength={4096}
           aria-describedby="name-count name-error"

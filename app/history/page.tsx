@@ -1,0 +1,60 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ArrowLeft, Trophy, Users } from 'lucide-react';
+import { auth } from '@/auth';
+import { getTournamentResults } from '@/lib/tournaments-db';
+import { Button } from '@/components/ui/button';
+
+export default async function HistoryPage() {
+  const session = await auth();
+  const userId = Number(session?.user?.id);
+  if (!userId) redirect('/');
+  const results = await getTournamentResults(userId);
+
+  return (
+    <main className="min-h-dvh bg-[#f7f1e8] px-4 py-4 text-stone-900 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl">
+        <Button asChild variant="ghost" className="-ml-3">
+          <Link href="/"><ArrowLeft aria-hidden="true" /> Accueil</Link>
+        </Button>
+        <header className="mt-4 sm:mt-8">
+          <Trophy aria-hidden="true" className="size-8 text-amber-600" />
+          <h1 className="mt-3 font-serif text-4xl tracking-[-0.04em] sm:text-6xl">Mes résultats</h1>
+          <p className="mt-2 text-sm text-stone-600 sm:text-base">Vos tournois terminés, visibles uniquement par vous.</p>
+        </header>
+
+        {results.length === 0 ? (
+          <section className="mt-6 rounded-2xl border border-white/80 bg-white/80 p-6 text-center">
+            <p className="font-semibold">Aucun résultat pour le moment.</p>
+            <Button asChild className="mt-4 bg-stone-900 text-white hover:bg-stone-800">
+              <Link href="/">Lancer un tournoi</Link>
+            </Button>
+          </section>
+        ) : (
+          <ol className="mt-6 grid gap-2">
+            {results.map((result) => (
+              <li key={result.id} className="flex items-center justify-between gap-4 rounded-2xl border border-white/80 bg-white/85 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate font-serif text-2xl tracking-[-0.02em]">{result.winner}</p>
+                  <p className="text-xs text-stone-500">
+                    {result.choices} choix · {result.mode === 'database' ? 'Top 2025' : 'Liste personnalisée'}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <time className="text-xs text-stone-500" dateTime={result.completedAt}>
+                    {new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium' }).format(new Date(result.completedAt))}
+                  </time>
+                  {result.inviteToken && (
+                    <Button asChild variant="ghost" size="sm" className="h-8 text-xs">
+                      <Link href={`/invites/${result.inviteToken}`}><Users aria-hidden="true" /> Comparer</Link>
+                    </Button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </main>
+  );
+}

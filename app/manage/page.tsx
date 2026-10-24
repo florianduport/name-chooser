@@ -102,21 +102,21 @@ export default function ManagePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] px-4 py-6 text-stone-900 sm:px-6 sm:py-10">
+    <main className="min-h-dvh bg-[#f7f1e8] px-3 py-3 text-stone-900 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
         <Button onClick={() => router.back()} variant="ghost" className="-ml-3 text-stone-600">
           <ArrowLeft aria-hidden="true" /> Retour
         </Button>
 
-        <header className="mt-8 max-w-2xl">
-          <h1 className="font-serif text-5xl tracking-[-0.04em] sm:text-6xl">Votre sélection</h1>
-          <p className="mt-4 text-lg leading-8 text-stone-600">
+        <header className="mt-3 max-w-2xl sm:mt-8">
+          <h1 className="font-serif text-4xl tracking-[-0.04em] sm:text-6xl">Votre sélection</h1>
+          <p className="mt-2 text-sm leading-6 text-stone-600 sm:mt-4 sm:text-lg sm:leading-8">
             Ajoutez les prénoms qui comptent pour vous. Ils seront disponibles dans le prochain tournoi.
           </p>
         </header>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[19rem_1fr]">
-          <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)]">
+        <div className="mt-4 grid gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-[19rem_1fr]">
+          <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-5">
             <div className="grid grid-cols-2 gap-2" role="tablist" aria-label="Type de prénoms">
               {(['girl', 'boy'] as const).map((gender) => (
                 <Button
@@ -138,7 +138,7 @@ export default function ManagePage() {
               ))}
             </div>
 
-            <form onSubmit={addName} className="mt-6 space-y-3">
+            <form onSubmit={addName} className="mt-3 grid grid-cols-[1fr_auto] gap-2 sm:mt-6 sm:block sm:space-y-3">
               <label htmlFor="new-name" className="text-sm font-semibold">Ajouter un prénom</label>
               <Input
                 id="new-name"
@@ -147,16 +147,16 @@ export default function ManagePage() {
                 placeholder="Ex. Charlie"
                 maxLength={60}
                 disabled={isSaving}
-                className="h-11 bg-white text-base"
+                className="col-start-1 h-11 bg-white text-base"
               />
-              <Button type="submit" disabled={isSaving || !newName.trim()} className="h-11 w-full bg-rose-700 text-white hover:bg-rose-800">
+              <Button type="submit" disabled={isSaving || !newName.trim()} className="col-start-2 row-start-2 h-11 bg-rose-700 px-4 text-white hover:bg-rose-800 sm:w-full">
                 {isSaving ? <RefreshCw aria-hidden="true" className="animate-spin" /> : <Plus aria-hidden="true" />}
-                {isSaving ? 'Ajout…' : 'Ajouter'}
+                <span className="hidden sm:inline">{isSaving ? 'Ajout…' : 'Ajouter'}</span>
               </Button>
             </form>
           </aside>
 
-          <section aria-label={`Prénoms de ${activeGender === 'girl' ? 'filles' : 'garçons'}`} className="min-w-0 rounded-2xl border border-white/80 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-7">
+          <section aria-label={`Prénoms de ${activeGender === 'girl' ? 'filles' : 'garçons'}`} className="min-w-0 rounded-2xl border border-white/80 bg-white/80 p-4 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-serif text-3xl tracking-[-0.03em]">
                 Prénoms de {activeGender === 'girl' ? 'filles' : 'garçons'}
