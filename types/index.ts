@@ -7,11 +7,6 @@ export type Name = {
   createdAt: string;
 };
 
-export type NamesDatabase = {
-  boys: Name[];
-  girls: Name[];
-};
-
 export type TournamentState = {
   currentRound: number;
   remainingNames: string[];

@@ -9,13 +9,19 @@ services:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
       PORT: 3000
-      DATA_FILE_PATH: /app/data/names.json
-      # Coolify generates a domain and routes it to this internal port.
+      DATABASE_URL: ${DATABASE_URL:-postgresql://namechooser:${SERVICE_PASSWORD_POSTGRES}@db:5432/namechooser}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      # Coolify generates the public URL and routes it to this internal port.
+      SERVICE_URL_APP_3000: /
       SERVICE_FQDN_APP_3000: /
+    depends_on:
+      db:
+        condition: service_healthy
     expose:
       - "3000"
-    volumes:
-      - namechooser-data:/app/data
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -28,7 +34,23 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 15s
+      start_period: 30s
+
+  db:
+    image: postgres:17.10-alpine3.22
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: namechooser
+      POSTGRES_USER: namechooser
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U namechooser -d namechooser"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
 volumes:
-  namechooser-data:
+  postgres-data:

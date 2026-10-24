@@ -18,6 +18,8 @@ function TournamentContent() {
     const gender: Gender = genderParam === 'girl' ? 'girl' : 'boy';
     const [phase, setPhase] = useState<TournamentPhase>('mode-selection');
     const [names, setNames] = useState<string[]>([]);
+    const [tournamentId, setTournamentId] = useState<string | null>(null);
+    const [tournamentMode, setTournamentMode] = useState<TournamentMode | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -39,28 +41,36 @@ function TournamentContent() {
         }
     };
 
+    const startTournament = async (
+        nameList: string[],
+        mode: TournamentMode,
+    ) => {
+        const response = await fetch('/api/tournaments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ names: nameList, gender, mode }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Impossible de créer le tournoi.');
+        }
+        setTournamentId(data.id);
+        setTournamentMode(mode);
+        setNames(nameList);
+        setPhase('tournament');
+    };
+
     const loadNamesFromDatabase = async () => {
         setPhase('loading');
         setError(null);
         try {
-            let response = await fetch(`/api/names?gender=${gender}`);
+            const response = await fetch(`/api/names?gender=${gender}`);
             if (!response.ok) throw new Error('Impossible de lire les prénoms enregistrés.');
-            let data = await response.json();
-
-            if (!data.names?.length) {
-                const seedResponse = await fetch('/api/names/seed', { method: 'POST' });
-                if (!seedResponse.ok) {
-                    throw new Error('Impossible d’initialiser la sélection de prénoms.');
-                }
-                response = await fetch(`/api/names?gender=${gender}`);
-                if (!response.ok) throw new Error('Impossible de lire les prénoms enregistrés.');
-                data = await response.json();
-            }
+            const data = await response.json();
 
             if (data.names && data.names.length > 0) {
                 const nameList = data.names.map((n: { name: string }) => n.name);
-                setNames(nameList);
-                setPhase('tournament');
+                await startTournament(nameList, 'database');
             } else {
                 throw new Error('Aucun prénom n’est disponible. Ajoutez-en depuis la page de gestion.');
             }
@@ -89,8 +99,7 @@ function TournamentContent() {
                 }
             }
 
-            setNames(customNames);
-            setPhase('tournament');
+            await startTournament(customNames, 'custom');
         } catch (error) {
             console.error('Error processing names:', error);
             setError(error instanceof Error ? error.message : 'La préparation du tournoi a échoué.');
@@ -103,6 +112,8 @@ function TournamentContent() {
         } else if (phase === 'tournament') {
             setPhase('mode-selection');
             setNames([]);
+            setTournamentId(null);
+            setTournamentMode(null);
         } else {
             router.push('/');
         }
@@ -110,7 +121,7 @@ function TournamentContent() {
 
     if (phase === 'loading') {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-[#f7f1e8]">
+            <div className="flex min-h-dvh items-center justify-center bg-[#f7f1e8]">
                 <div className="text-center space-y-4">
                     <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
                     <p className="text-lg text-stone-700">Préparation de votre tournoi…</p>
@@ -120,7 +131,7 @@ function TournamentContent() {
     }
 
     return (
-        <main className="min-h-screen bg-[#f7f1e8] p-4 text-stone-900 sm:p-6">
+        <main className="min-h-dvh bg-[#f7f1e8] p-3 text-stone-900 sm:p-6">
             <div className="max-w-4xl mx-auto">
                 {error && (
                     <div role="alert" className="mx-auto mt-4 max-w-2xl rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
@@ -128,8 +139,8 @@ function TournamentContent() {
                     </div>
                 )}
                 {phase === 'mode-selection' && (
-                    <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
-                        <Button onClick={handleBack} variant="ghost" className="self-start">
+                    <div className="flex min-h-[calc(100dvh-1.5rem)] flex-col items-center justify-center gap-2 sm:min-h-[calc(100dvh-3rem)] sm:gap-4">
+                        <Button onClick={handleBack} variant="ghost" className="h-10 self-start">
                             <ArrowLeft aria-hidden="true" /> Retour
                         </Button>
                         <ModeSelection onModeSelect={handleModeSelect} gender={gender} />
@@ -137,16 +148,16 @@ function TournamentContent() {
                 )}
 
                 {phase === 'name-input' && (
-                    <div className="flex flex-col items-center justify-center min-h-screen space-y-4">
-                        <Button onClick={handleBack} variant="ghost" className="self-start">
+                    <div className="flex min-h-[calc(100dvh-1.5rem)] flex-col items-center justify-center gap-2 sm:min-h-[calc(100dvh-3rem)] sm:gap-4">
+                        <Button onClick={handleBack} variant="ghost" className="h-10 self-start">
                             <ArrowLeft aria-hidden="true" /> Retour
                         </Button>
                         <NameListInput onConfirm={handleCustomNamesConfirm} gender={gender} />
                     </div>
                 )}
 
-                {phase === 'tournament' && names.length > 0 && (
-                    <TournamentBracket initialNames={names} gender={gender} />
+                {phase === 'tournament' && names.length > 0 && tournamentId && tournamentMode && (
+                    <TournamentBracket initialNames={names} gender={gender} tournamentId={tournamentId} mode={tournamentMode} />
                 )}
             </div>
         </main>
@@ -156,7 +167,7 @@ function TournamentContent() {
 export default function TournamentPage() {
     return (
         <Suspense fallback={
-            <div className="flex min-h-screen items-center justify-center bg-[#f7f1e8]">
+            <div className="flex min-h-dvh items-center justify-center bg-[#f7f1e8]">
                 <div className="space-y-4 text-center">
                     <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
                     <p className="text-lg text-stone-700">Chargement…</p>

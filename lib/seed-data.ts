@@ -1,36 +1,28 @@
-import { Gender, Name, NamesDatabase } from '@/types';
+import type { Gender } from '@/types';
 
+export const DEFAULT_DATASET_VERSION = 'insee-france-2025-top-50-by-sex';
+export const DEFAULT_DATASET_SOURCE =
+  'https://www.insee.fr/fr/statistiques/8595130';
+
+// Official national ranks 1–50 by sex for births registered in France in 2025.
+// Source: INSEE, Fichier des prénoms, released 2026-07-16.
 const DEFAULT_NAMES: Record<Gender, string[]> = {
   boy: [
-    'Gabriel', 'Raphaël', 'Louis', 'Léo', 'Noah', 'Arthur', 'Adam', 'Jules', 'Maël', 'Léon',
-    'Lucas', 'Paul', 'Hugo', 'Ethan', 'Nathan', 'Gabin', 'Timéo', 'Aaron', 'Marius', 'Eden',
-    'Naël', 'Mohamed', 'Nino', 'Gaspard', 'Sacha', 'Ismaël', 'Noé', 'Ilyes', 'Liam', 'Enzo',
-    'Malo', 'Antoine', 'Théo', 'Tom', 'Yanis', 'Maxime', 'Axel', 'Elias', 'Valentin', 'Marcel',
-    'Matteo', 'Amir', 'Ibrahim', 'Alexandre', 'Alexis', 'Oscar', 'Evan', 'Antonin', 'Baptiste', 'Mathis',
+    'Gabriel', 'Noah', 'Léo', 'Raphaël', 'Louis', 'Jules', 'Arthur', 'Léon', 'Adam', 'Maël',
+    'Isaac', 'Sacha', 'Marceau', 'Liam', 'Eden', 'Noé', 'Elio', 'Gabin', 'Lucas', 'Aaron',
+    'Mohamed', 'Malo', 'Paul', 'Ayden', 'Hugo', 'Ibrahim', 'Marius', 'Victor', 'Eliott', 'Ethan',
+    'Imran', 'Aylan', 'Naël', 'Martin', 'Ezio', 'Côme', 'Gaspard', 'Zayn', 'Nathan', 'Léandre',
+    'Basile', 'Théo', 'Augustin', 'Nino', 'Milo', 'Mathis', 'Lyam', 'Oscar', 'Ismaël', 'Simon',
   ],
   girl: [
-    'Louise', 'Jade', 'Ambre', 'Alba', 'Emma', 'Alma', 'Romy', 'Rose', 'Alice', 'Anna',
-    'Lina', 'Chloé', 'Léa', 'Julia', 'Mila', 'Inès', 'Agathe', 'Jeanne', 'Léna', 'Iris',
-    'Lucie', 'Mia', 'Zoé', 'Luna', 'Elsa', 'Sara', 'Olivia', 'Manon', 'Éléna', 'Ava',
-    'Charlotte', 'Victoria', 'Camille', 'Juliette', 'Anaïs', 'Sophia', 'Lilou', 'Amélie', 'Lola',
-    'Éva', 'Ella', 'Nina', 'Maya', 'Lou', 'Margot', 'Élise', 'Adèle', 'Romane', 'Louna',
+    'Louise', 'Jade', 'Ambre', 'Alma', 'Alba', 'Rose', 'Emma', 'Romy', 'Adèle', 'Alice',
+    'Iris', 'Lou', 'Agathe', 'Inaya', 'Anna', 'Nour', 'Lina', 'Charlie', 'Olivia', 'Julia',
+    'Mia', 'Victoire', 'Jeanne', 'Giulia', 'Léonie', 'Eva', 'Esmée', 'Juliette', 'Sofia', 'Zoé',
+    'Léna', 'Alya', 'Luna', 'Chloé', 'Nina', 'Victoria', 'Alix', 'Léa', 'Romane', 'Ava',
+    'Charlotte', 'Elena', 'Lucie', 'Albane', 'Lyana', 'Margot', 'Gabrielle', 'Emy', 'Aya', 'Livia',
   ],
 };
 
-function createNames(gender: Gender, timestamp: string): Name[] {
-  return DEFAULT_NAMES[gender].map((name, index) => ({
-    id: `${gender}-${Date.now()}-${index}`,
-    name,
-    gender,
-    createdAt: timestamp,
-  }));
-}
-
-export function mergeDefaultNames(database: NamesDatabase): NamesDatabase {
-  const timestamp = new Date().toISOString();
-
-  return {
-    boys: database.boys.length > 0 ? database.boys : createNames('boy', timestamp),
-    girls: database.girls.length > 0 ? database.girls : createNames('girl', timestamp),
-  };
+export function getDefaultNames(gender: Gender): readonly string[] {
+  return DEFAULT_NAMES[gender];
 }

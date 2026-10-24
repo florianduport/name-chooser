@@ -13,8 +13,8 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Notre prénom · Cindy & Florian",
-  description: "Un tournoi à deux pour faire émerger votre prénom préféré.",
+  title: "Prénom · Trouvez votre favori",
+  description: "Comparez des prénoms et faites émerger votre favori grâce à un tournoi privé.",
 };
 
 export default function RootLayout({

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { deleteName } from '@/lib/db';
+import { getUserId } from '@/lib/session';
 import { Gender } from '@/types';
 
 export async function DELETE(
@@ -7,6 +8,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
     const { id } = await params;
     const searchParams = request.nextUrl.searchParams;
     const gender = searchParams.get('gender') as Gender | null;
@@ -25,7 +30,7 @@ export async function DELETE(
       );
     }
 
-    const deleted = await deleteName(id, gender);
+    const deleted = await deleteName(userId, id, gender);
     
     if (!deleted) {
       return NextResponse.json(

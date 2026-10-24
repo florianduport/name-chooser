@@ -1,29 +1,35 @@
-# Notre prénom
+# Prénom
 
-A private baby-name chooser for Cindy and Florian. Start with the curated French name list or enter a shortlist, then choose between two or three names at a time until one favorite remains.
+A private, multi-user baby-name tournament. Sign in with Google, start from the official French 2025 rankings or enter a shortlist, then choose between two or three names at a time until one favorite remains.
 
 ## Features
 
-- Curated girl and boy name lists with persistent additions
-- Custom tournaments with optional saving of new names
-- Fair handling of odd-sized rounds through three-name choices
-- Choice history and rollback to any previous duel
-- Searchable name management with guarded deletion
-- Responsive, keyboard-accessible interface
+- Google sign-in with private per-user data
+- Official 2025 French default dataset: INSEE ranks 1–50 by sex (100 names total)
+- Custom name lists with persistent additions and removals
+- Persisted tournament votes, rollback, winners, and private result history
+- Compact mobile layouts with large tap targets
+- PostgreSQL persistence with automatic startup migrations
 - Production health endpoint at `/api/health`
+
+## Official name data
+
+The default dataset comes directly from the [INSEE national first-name file](https://www.insee.fr/fr/statistiques/8595130), released July 16, 2026 and covering births registered in France in 2025. The app uses the official national `rang` values 1–50 for each sex. Counts in the source are rounded by INSEE; ranking is calculated from unrounded values.
 
 ## Local development
 
-Requires Node.js 22 or newer.
+Requires Node.js 22+, Docker, and a Google OAuth 2.0 Web application.
 
 ```bash
+cp .env.example .env
+# Fill GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and AUTH_SECRET.
+docker compose up -d db
 npm ci
+node scripts/migrate.mjs
 npm run dev
 ```
 
-Open <http://localhost:3000>.
-
-The local datastore is `data/names.json`. Override it with `DATA_FILE_PATH=/path/to/names.json` when needed.
+Open <http://localhost:3000>. For local OAuth, add `http://localhost:3000/api/auth/callback/google` as an authorized redirect URI and change `AUTH_URL` accordingly.
 
 ## Quality checks
 
@@ -33,11 +39,6 @@ npm run lint
 npm run build
 ```
 
-## Docker
+## Coolify
 
-```bash
-docker compose up -d --build
-docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/health').then(async r => { console.log(await r.text()); process.exit(r.ok ? 0 : 1) })"
-```
-
-The Compose service exposes port 3000 to the internal network without publishing a host port. See [DEPLOY.md](DEPLOY.md) for Coolify deployment, persistence, backups, health checks, and proxy guidance.
+The production Compose stack builds the app, runs migrations before startup, exposes the application only to Coolify's network, and persists PostgreSQL in a named volume. See [DEPLOY.md](DEPLOY.md) for the exact environment variables, Google Cloud setup, callback URL, backups, and deployment procedure.

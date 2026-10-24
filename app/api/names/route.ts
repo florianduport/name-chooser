@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addName, getNames, validateName } from '@/lib/db';
+import { getUserId } from '@/lib/session';
 import { Gender } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
+    const userId = await getUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
     const searchParams = request.nextUrl.searchParams;
     const gender = searchParams.get('gender') as Gender | null;
     
@@ -14,7 +19,7 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const names = await getNames(gender);
+    const names = await getNames(userId, gender);
     return NextResponse.json({ names });
   } catch (error) {
     console.error('Error fetching names:', error);
@@ -27,6 +32,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
     const body = await request.json();
     const { name, gender } = body;
     
@@ -45,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const result = await addName(name, gender);
+    const result = await addName(userId, name, gender);
     return NextResponse.json(result, { status: result.created ? 201 : 200 });
   } catch (error) {
     console.error('Error adding name:', error);
