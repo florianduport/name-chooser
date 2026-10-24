@@ -10,22 +10,20 @@ import WinnerActions from '@/components/WinnerActions';
 import {
   createTournament,
   getCurrentPair,
+  getRoundProgress,
+  getTotalDuels,
   getWinner,
   isTournamentComplete,
   nextRound,
   selectWinner,
 } from '@/lib/tournament';
-import { DuelHistoryEntry, Gender, TournamentMode, TournamentState } from '@/types';
+import { DuelHistoryEntry, Gender, TournamentMode } from '@/types';
 
 interface TournamentBracketProps {
   initialNames: string[];
   gender: Gender;
   tournamentId: string;
   mode: TournamentMode;
-}
-
-function remainingDuels(tournament: TournamentState) {
-  return Math.floor(tournament.remainingNames.length / 2);
 }
 
 export default function TournamentBracket({
@@ -175,7 +173,9 @@ export default function TournamentBracket({
     );
   }
 
-  const duels = remainingDuels(tournament);
+  const roundProgress = getRoundProgress(tournament);
+  const overallTotal = getTotalDuels(initialNames.length);
+  const overallCurrent = Math.min(history.length + 1, overallTotal);
 
   return (
     <section className="mx-auto flex h-[calc(100dvh-1.5rem)] min-h-[32rem] w-full max-w-6xl flex-col overflow-y-auto py-0 sm:h-auto sm:min-h-[calc(100dvh-3rem)] sm:justify-center sm:py-6">
@@ -186,13 +186,21 @@ export default function TournamentBracket({
           </Button>
           <h1 className="truncate font-serif text-2xl tracking-[-0.03em] sm:text-5xl">Lequel préférez-vous ?</h1>
           <p className="mt-1 text-xs text-stone-600 sm:mt-2 sm:text-base">
-            Manche {tournament.currentRound} · {duels} duel{duels !== 1 ? 's' : ''} à départager
+            Manche {tournament.currentRound} · duel {roundProgress.current}/{roundProgress.total}
+            <span className="text-stone-400"> · choix {overallCurrent}/{overallTotal}</span>
           </p>
         </div>
-        <div className="mb-1 h-2 w-20 shrink-0 overflow-hidden rounded-full bg-stone-200 sm:w-48" aria-label={`Manche ${tournament.currentRound}`}>
+        <div
+          className="mb-1 h-2 w-20 shrink-0 overflow-hidden rounded-full bg-stone-200 sm:w-48"
+          role="progressbar"
+          aria-label={`Progression de la manche ${tournament.currentRound}`}
+          aria-valuemin={1}
+          aria-valuemax={roundProgress.total}
+          aria-valuenow={roundProgress.current}
+        >
           <div
             className="h-full rounded-full bg-rose-700 transition-[width] duration-500"
-            style={{ width: `${Math.max(12, 100 / Math.max(1, duels))}%` }}
+            style={{ width: `${(roundProgress.current / Math.max(1, roundProgress.total)) * 100}%` }}
           />
         </div>
       </div>

@@ -25,7 +25,7 @@ export default async function SharedResultPage({
         <h1 className="mt-2 break-words font-serif text-6xl tracking-[-0.04em]">{result.winner}</h1>
         <p className="mt-4 text-sm leading-6 text-stone-600">Un tournoi de préférences a fait émerger ce prénom.</p>
         <Button asChild className="mt-7 h-12 w-full rounded-xl bg-stone-900 text-white hover:bg-stone-800">
-          <Link href="/"><Heart aria-hidden="true" /> Trouver mon favori</Link>
+          <Link href="/"><Heart aria-hidden="true" /> Essayer LeBabyName</Link>
         </Button>
       </section>
     </main>

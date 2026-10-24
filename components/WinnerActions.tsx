@@ -72,7 +72,7 @@ export default function WinnerActions({
     ]);
     const shareData = {
       title: `Mon prénom favori : ${winner}`,
-      text: `Mon tournoi a choisi ${winner}. Quel sera votre favori ?`,
+      text: `LeBabyName a fait émerger ${winner}. Quel sera votre favori ?`,
       url,
       files,
     };
@@ -99,7 +99,7 @@ export default function WinnerActions({
 
   const resultWhatsApp = () => run(async () => {
     const url = await getResultUrl();
-    const text = `Mon prénom favori est ${winner} ✨ Quel sera le vôtre ? ${url}`;
+    const text = `LeBabyName a fait émerger ${winner} ✨ Quel sera votre favori ? ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   });
 
@@ -111,8 +111,8 @@ export default function WinnerActions({
   const nativeInviteShare = () => run(async () => {
     const value = await getInvite();
     const data = {
-      title: 'À vous de choisir',
-      text: 'Faites le même tournoi de prénoms et comparons nos favoris.',
+      title: 'Invitation LeBabyName',
+      text: 'Faites le même tournoi LeBabyName et comparons nos favoris.',
       url: value.url,
     };
     if (navigator.share) {
@@ -125,7 +125,7 @@ export default function WinnerActions({
 
   const inviteWhatsApp = () => run(async () => {
     const value = await getInvite();
-    const text = `Faites le même tournoi de prénoms et comparons nos favoris ✨ ${value.url}`;
+    const text = `Faites le même tournoi LeBabyName et comparons nos favoris ✨ ${value.url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   });
 

@@ -64,7 +64,7 @@ export async function createResultImage(
 
   context.fillStyle = '#1c1917';
   context.font = '600 30px Arial, sans-serif';
-  context.fillText('PRÉNOM', width / 2, cardY + cardHeight - 105);
+  context.fillText('LeBabyName', width / 2, cardY + cardHeight - 105);
 
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
@@ -75,7 +75,7 @@ export async function createResultImage(
   });
   return new File(
     [blob],
-    `prenom-${winner.toLocaleLowerCase('fr').replace(/[^a-z0-9]+/gi, '-')}-${format}.png`,
+    `lebabyname-${winner.toLocaleLowerCase('fr').replace(/[^a-z0-9]+/gi, '-')}-${format}.png`,
     { type: 'image/png' },
   );
 }

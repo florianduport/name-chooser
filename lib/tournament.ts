@@ -159,3 +159,24 @@ export function getTotalRounds(namesCount: number): number {
   }
   return rounds;
 }
+
+export function getRoundProgress(tournament: TournamentState) {
+  const completed = tournament.selectedNames.length;
+  const remaining = Math.floor(tournament.remainingNames.length / 2);
+  const total = completed + remaining;
+  return {
+    current: Math.min(completed + 1, total),
+    total,
+  };
+}
+
+export function getTotalDuels(namesCount: number): number {
+  let names = namesCount;
+  let total = 0;
+  while (names > 1) {
+    const duels = Math.floor(names / 2);
+    total += duels;
+    names = duels;
+  }
+  return total;
+}

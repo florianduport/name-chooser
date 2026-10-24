@@ -1,4 +1,4 @@
-# Coolify production deployment
+# LeBabyName Coolify production deployment
 
 The stack contains a standalone Next.js application and PostgreSQL 17. Coolify terminates HTTPS and routes the public domain to the app's internal port 3000. PostgreSQL is private to the Compose network and stores authentication, per-user name lists, votes, tournaments, and results.
 

@@ -18,8 +18,11 @@ export default function SignInScreen({
       <div aria-hidden="true" className="absolute -right-24 -top-32 size-80 rounded-full bg-rose-200/50 blur-3xl" />
       <div aria-hidden="true" className="absolute -bottom-28 -left-24 size-80 rounded-full bg-sky-200/50 blur-3xl" />
       <section className="relative mx-auto w-full max-w-lg rounded-3xl border border-white/80 bg-white/85 p-6 text-center shadow-[0_30px_90px_-42px_rgba(77,48,38,0.5)] sm:p-10">
-        <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-stone-900 text-white">
-          <Heart aria-hidden="true" className="size-5" fill="currentColor" />
+        <div className="flex items-center justify-center gap-2">
+          <span className="flex size-11 items-center justify-center rounded-full bg-stone-900 text-white">
+            <Heart aria-hidden="true" className="size-5" fill="currentColor" />
+          </span>
+          <span className="font-serif text-xl font-semibold tracking-[-0.03em]">LeBabyName</span>
         </div>
         <h1 className="mt-5 font-serif text-4xl tracking-[-0.04em] sm:text-6xl">
           {title}

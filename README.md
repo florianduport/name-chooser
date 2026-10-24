@@ -1,6 +1,6 @@
-# Prénom
+# LeBabyName
 
-A private, multi-user baby-name tournament. Sign in with Google, start from the official French 2025 rankings or enter a shortlist, then choose between two or three names at a time until one favorite remains.
+LeBabyName is a private, multi-user baby-name tournament. Sign in with Google, start from the official French 2025 rankings or enter a shortlist, then choose between two or three names at a time until one favorite remains.
 
 ## Features
 

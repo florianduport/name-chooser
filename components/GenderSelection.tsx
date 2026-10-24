@@ -34,8 +34,11 @@ export default function GenderSelection() {
       </nav>
       <div className="relative mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12">
         <section>
-          <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-stone-900 text-white shadow-[0_12px_30px_-14px_rgba(28,25,23,0.8)] sm:mb-7 sm:size-12">
-            <Heart aria-hidden="true" className="size-5" fill="currentColor" />
+          <div className="mb-3 flex items-center gap-2 sm:mb-7">
+            <span className="flex size-10 items-center justify-center rounded-full bg-stone-900 text-white shadow-[0_12px_30px_-14px_rgba(28,25,23,0.8)] sm:size-12">
+              <Heart aria-hidden="true" className="size-5" fill="currentColor" />
+            </span>
+            <span className="font-serif text-lg font-semibold tracking-[-0.03em]">LeBabyName</span>
           </div>
           <h1 className="max-w-xl font-serif text-4xl leading-[0.98] tracking-[-0.04em] text-balance sm:text-7xl">
             Le prénom qui vous ressemble.

@@ -35,7 +35,8 @@ export default async function InvitePage({
         <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-sky-100 text-sky-800">
           <Users aria-hidden="true" />
         </div>
-        <h1 className="mt-5 font-serif text-4xl tracking-[-0.04em]">À vous de choisir.</h1>
+        <p className="mt-3 font-serif text-lg font-semibold tracking-[-0.03em]">LeBabyName</p>
+        <h1 className="mt-2 font-serif text-4xl tracking-[-0.04em]">À vous de choisir.</h1>
         <p className="mt-3 text-sm leading-6 text-stone-600">
           Parcourez la même liste de {invite.nameCount} prénoms de {invite.gender === 'girl' ? 'fille' : 'garçon'} et découvrez si vos favoris correspondent.
         </p>
