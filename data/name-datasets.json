@@ -50,12 +50,12 @@
   {
     "countryCode": "PT",
     "countryName": "Portugal",
-    "sourceName": "IRN civil registry (archived table)",
+    "sourceName": "Archived reproduction of IRN civil-registry data",
     "sourceUrl": "https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf",
     "coverageYear": 2016,
     "publicationDate": "2017-01-05",
     "version": "pt-irn-2016-v1",
-    "notes": "Latest complete official top-50-per-sex table available for reuse. IRN has newer partial rankings, but no newer complete top 50 is publicly downloadable.",
+    "notes": "Historical IRN-derived ranking reproduced by a newspaper archive, not hosted by a government data portal. IRN has newer partial rankings, but no official-hosted top 50 is publicly downloadable. Requires owner approval before production use.",
     "boys": ["Santiago", "João", "Francisco", "Rodrigo", "Martim", "Afonso", "Tomás", "Miguel", "Duarte", "Lourenço", "Gabriel", "Gonçalo", "Pedro", "Tiago", "Dinis", "Rafael", "Diogo", "Lucas", "Salvador", "Gustavo", "David", "Vicente", "Simão", "José", "Mateus", "Diego", "Manuel", "Henrique", "António", "Daniel", "Vasco", "Leonardo", "Bernardo", "André", "Luís", "Enzo", "Eduardo", "Alexandre", "Isaac", "Kevin", "Rúben", "Filipe", "Matias", "Leandro", "Xavier", "Ricardo", "Samuel", "Artur", "Nuno", "Bruno"],
     "girls": ["Maria", "Matilde", "Leonor", "Carolina", "Mariana", "Beatriz", "Ana", "Sofia", "Inês", "Margarida", "Francisca", "Lara", "Laura", "Alice", "Joana", "Clara", "Diana", "Madalena", "Luana", "Mara", "Benedita", "Mafalda", "Constança", "Bianca", "Íris", "Sara", "Camila", "Rita", "Gabriela", "Eva", "Carlota", "Letícia", "Vitória", "Ema", "Luísa", "Catarina", "Ariana", "Yasmin", "Yara", "Miriam", "Carminho", "Alícia", "Marta", "Luena", "Rafaela", "Victória", "Núria", "Júlia", "Kyara", "Helena"]
   },
