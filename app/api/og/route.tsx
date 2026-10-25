@@ -7,13 +7,17 @@ export function GET(request: NextRequest) {
   const kind = request.nextUrl.searchParams.get('kind') ?? 'home';
   const winner = request.nextUrl.searchParams.get('winner');
 
-  const title = kind === 'result' && winner
+  const title = (kind === 'result' || kind === 'name' || kind === 'list') && winner
     ? winner
     : kind === 'invite'
       ? translate(locale, 'invite.signInTitle')
       : translate(locale, 'landing.headline');
   const description = kind === 'result'
-    ? translate(locale, 'shared.description')
+    ? translate(locale, 'shared.teaser')
+    : kind === 'name'
+      ? translate(locale, 'shared.description')
+      : kind === 'list'
+        ? translate(locale, 'meta.description')
     : kind === 'invite'
       ? translate(locale, 'invite.signInDescription')
       : translate(locale, 'meta.description');
@@ -77,15 +81,15 @@ export function GET(request: NextRequest) {
                 <path fill="#fff" d="M32 49.2 15.8 34.7C6.4 26.3 12.2 14 22.3 14c4.1 0 7.8 2.2 9.7 5.6A11.1 11.1 0 0 1 41.7 14c10.1 0 15.9 12.3 6.5 20.7L32 49.2Z" />
               </svg>
             </div>
-            <div style={{ fontSize: 34, fontWeight: 700 }}>LeBabyName</div>
+            <div style={{ fontSize: 34, fontWeight: 700 }}>lebabyname.com</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 940 }}>
-            {kind === 'result' && (
+            {(kind === 'result' || kind === 'name') && (
               <div style={{ color: '#78716c', fontSize: 22, fontWeight: 700, letterSpacing: 4, marginBottom: 14 }}>
                 {translate(locale, 'shared.label').toUpperCase()}
               </div>
             )}
-            <div style={{ fontFamily: 'Georgia, serif', fontSize: winner ? 104 : 72, lineHeight: 1.02, letterSpacing: -3 }}>
+            <div style={{ fontFamily: 'Georgia, serif', fontSize: kind === 'list' ? 58 : winner ? 104 : 72, lineHeight: 1.02, letterSpacing: -3 }}>
               {title}
             </div>
             <div style={{ marginTop: 24, maxWidth: 850, color: '#57534e', fontSize: 28, lineHeight: 1.35 }}>

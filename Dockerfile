@@ -10,6 +10,20 @@ RUN --mount=type=secret,id=npmrc,target=/root/.npmrc,required=false \
 FROM node:24.16.0-alpine3.22 AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ARG NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+ARG NEXT_PUBLIC_AFFILIATE_BIRTH_ANNOUNCEMENTS_URL
+ARG NEXT_PUBLIC_AFFILIATE_JEWELRY_URL
+ARG NEXT_PUBLIC_AFFILIATE_BODYSUITS_URL
+ARG NEXT_PUBLIC_AFFILIATE_MUGS_URL
+ARG NEXT_PUBLIC_AFFILIATE_POSTERS_URL
+ENV NEXT_PUBLIC_POSTHOG_KEY=$NEXT_PUBLIC_POSTHOG_KEY \
+    NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST \
+    NEXT_PUBLIC_AFFILIATE_BIRTH_ANNOUNCEMENTS_URL=$NEXT_PUBLIC_AFFILIATE_BIRTH_ANNOUNCEMENTS_URL \
+    NEXT_PUBLIC_AFFILIATE_JEWELRY_URL=$NEXT_PUBLIC_AFFILIATE_JEWELRY_URL \
+    NEXT_PUBLIC_AFFILIATE_BODYSUITS_URL=$NEXT_PUBLIC_AFFILIATE_BODYSUITS_URL \
+    NEXT_PUBLIC_AFFILIATE_MUGS_URL=$NEXT_PUBLIC_AFFILIATE_MUGS_URL \
+    NEXT_PUBLIC_AFFILIATE_POSTERS_URL=$NEXT_PUBLIC_AFFILIATE_POSTERS_URL
 COPY --from=dependencies --link /app/node_modules ./node_modules
 COPY --link . .
 RUN --mount=type=cache,target=/app/.next/cache \
@@ -32,6 +46,7 @@ COPY --from=build --link --chown=1001:1001 /app/.next/static ./.next/static
 COPY --link --chown=1001:1001 scripts/migrate.mjs ./scripts/migrate.mjs
 COPY --link --chown=1001:1001 scripts/seed-names.mjs ./scripts/seed-names.mjs
 COPY --link --chown=1001:1001 data/name-datasets.json ./data/name-datasets.json
+COPY --link --chown=1001:1001 data/name-meanings.json ./data/name-meanings.json
 COPY --link --chown=1001:1001 --chmod=755 scripts/start.sh ./scripts/start.sh
 
 USER appuser

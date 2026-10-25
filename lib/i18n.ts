@@ -71,6 +71,7 @@ const fr = {
   'winner.other': 'Autre liste',
   'winner.share': 'Partager',
   'winner.invite': 'Inviter',
+  'winner.invitePartner': 'Inviter votre partenaire',
   'share.title': 'Partagez votre favori',
   'share.subtitle': 'Images Story et carrée, prêtes pour vos applications.',
   'share.system': 'Menu de partage',
@@ -145,6 +146,7 @@ const fr = {
   'manage.loading': 'Chargement des prénoms…',
   'shared.label': 'Le prénom favori',
   'shared.description': 'Un tournoi LeBabyName a fait émerger ce prénom.',
+  'shared.teaser': 'Découvre si vous avez les mêmes goûts — puis lance ton propre duel.',
   'shared.cta': 'Essayer LeBabyName',
   'image.label': 'MON PRÉNOM FAVORI',
   'image.tagline': 'Un tournoi, un favori.',
@@ -184,6 +186,7 @@ const enGB: Messages = {
   'tournament.empty': 'This tournament cannot continue with the current list.',
   'winner.label': 'Your favourite name', 'winner.summary': 'After {count} choices, this name came out on top.',
   'winner.replay': 'Play again', 'winner.other': 'Another list', 'winner.share': 'Share', 'winner.invite': 'Invite',
+  'winner.invitePartner': 'Invite your partner',
   'share.title': 'Share your favourite', 'share.subtitle': 'Story and square images, ready for your apps.',
   'share.system': 'Share menu', 'share.copy': 'Copy link', 'share.square': 'Square',
   'share.downloadHint': 'The Story image is downloaded — open your chosen app to post it.',
@@ -220,6 +223,7 @@ const enGB: Messages = {
   'manage.saved': '{name} was added.', 'manage.exists': '{name} is already on this list.', 'manage.removed': '{name} was removed.',
   'manage.retry': 'Check your connection and try again.', 'manage.emptyHint': 'Add your first name with the form.', 'manage.loading': 'Loading names…',
   'shared.label': 'The favourite name', 'shared.description': 'A LeBabyName tournament brought this name to the top.',
+  'shared.teaser': 'See whether your tastes match — then start your own name duel.',
   'shared.cta': 'Try LeBabyName', 'image.label': 'MY FAVOURITE NAME', 'image.tagline': 'One tournament. One favourite.',
 };
 
@@ -264,6 +268,7 @@ const es: Messages = {
   'tournament.empty': 'El torneo no puede continuar con esta lista.',
   'winner.label': 'Tu nombre favorito', 'winner.summary': 'Tras {count} elecciones, este nombre queda en primer lugar.',
   'winner.replay': 'Repetir', 'winner.other': 'Otra lista', 'winner.share': 'Compartir', 'winner.invite': 'Invitar',
+  'winner.invitePartner': 'Invita a tu pareja',
   'share.title': 'Comparte tu favorito', 'share.subtitle': 'Imágenes Story y cuadrada listas para publicar.',
   'share.system': 'Menú de compartir', 'share.copy': 'Copiar enlace', 'share.square': 'Cuadrada',
   'share.downloadHint': 'La imagen Story se ha descargado. Abre la aplicación elegida.',
@@ -298,6 +303,7 @@ const es: Messages = {
   'manage.saved': 'Se ha añadido {name}.', 'manage.exists': '{name} ya está en la lista.', 'manage.removed': 'Se ha eliminado {name}.',
   'manage.retry': 'Comprueba la conexión e inténtalo de nuevo.', 'manage.emptyHint': 'Añade el primer nombre con el formulario.', 'manage.loading': 'Cargando nombres…',
   'shared.label': 'El nombre favorito', 'shared.description': 'Un torneo LeBabyName hizo destacar este nombre.',
+  'shared.teaser': 'Descubre si tenéis los mismos gustos y empieza tu propio duelo.',
   'shared.cta': 'Probar LeBabyName', 'image.label': 'MI NOMBRE FAVORITO', 'image.tagline': 'Un torneo, un favorito.',
 };
 
@@ -330,6 +336,7 @@ const pt: Messages = {
   'tournament.empty': 'O torneio não pode continuar com esta lista.',
   'winner.label': 'O seu nome favorito', 'winner.summary': 'Após {count} escolhas, este nome ficou em primeiro lugar.',
   'winner.replay': 'Repetir', 'winner.other': 'Outra lista', 'winner.share': 'Partilhar', 'winner.invite': 'Convidar',
+  'winner.invitePartner': 'Convide o seu parceiro',
   'share.title': 'Partilhe o seu favorito', 'share.subtitle': 'Imagens Story e quadrada prontas para publicar.',
   'share.system': 'Menu de partilha', 'share.copy': 'Copiar ligação', 'share.square': 'Quadrada',
   'share.downloadHint': 'A imagem Story foi descarregada. Abra a aplicação escolhida.',
@@ -364,6 +371,7 @@ const pt: Messages = {
   'manage.saved': '{name} foi adicionado.', 'manage.exists': '{name} já está nesta lista.', 'manage.removed': '{name} foi removido.',
   'manage.retry': 'Verifique a ligação e tente novamente.', 'manage.emptyHint': 'Adicione o primeiro nome com o formulário.', 'manage.loading': 'A carregar nomes…',
   'shared.label': 'O nome favorito', 'shared.description': 'Um torneio LeBabyName destacou este nome.',
+  'shared.teaser': 'Descubra se têm os mesmos gostos e comece o seu próprio duelo.',
   'shared.cta': 'Experimentar LeBabyName', 'image.label': 'O MEU NOME FAVORITO', 'image.tagline': 'Um torneio, um favorito.',
 };
 
@@ -396,6 +404,7 @@ const it: Messages = {
   'tournament.empty': 'Il torneo non può continuare con questa lista.',
   'winner.label': 'Il tuo nome preferito', 'winner.summary': 'Dopo {count} scelte, questo nome è arrivato in cima.',
   'winner.replay': 'Rigioca', 'winner.other': 'Altra lista', 'winner.share': 'Condividi', 'winner.invite': 'Invita',
+  'winner.invitePartner': 'Invita il tuo partner',
   'share.title': 'Condividi il preferito', 'share.subtitle': 'Immagini Story e quadrata pronte da pubblicare.',
   'share.system': 'Menu di condivisione', 'share.copy': 'Copia link', 'share.square': 'Quadrata',
   'share.downloadHint': 'L’immagine Story è stata scaricata. Apri l’app scelta.',
@@ -430,6 +439,7 @@ const it: Messages = {
   'manage.saved': '{name} è stato aggiunto.', 'manage.exists': '{name} è già nella lista.', 'manage.removed': '{name} è stato rimosso.',
   'manage.retry': 'Controlla la connessione e riprova.', 'manage.emptyHint': 'Aggiungi il primo nome con il modulo.', 'manage.loading': 'Caricamento dei nomi…',
   'shared.label': 'Il nome preferito', 'shared.description': 'Un torneo LeBabyName ha fatto emergere questo nome.',
+  'shared.teaser': 'Scopri se avete gli stessi gusti e inizia il tuo duello.',
   'shared.cta': 'Prova LeBabyName', 'image.label': 'IL MIO NOME PREFERITO', 'image.tagline': 'Un torneo, un preferito.',
 };
 

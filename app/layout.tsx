@@ -3,6 +3,8 @@ import { Fraunces, Geist } from "next/font/google";
 import LocaleProvider from "@/components/LocaleProvider";
 import { translate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/locale-server";
+import CookieConsent from "@/components/CookieConsent";
+import PostHogAnalytics from "@/components/PostHogAnalytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -69,6 +71,8 @@ export default async function RootLayout({
       >
         <LocaleProvider locale={locale}>
           {children}
+          <CookieConsent enabled={process.env.ADS_ENABLED === "true" || Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY)} />
+          <PostHogAnalytics />
         </LocaleProvider>
       </body>
     </html>

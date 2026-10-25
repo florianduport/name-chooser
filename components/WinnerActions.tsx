@@ -16,6 +16,9 @@ import { createResultImage, ShareImageFormat } from '@/lib/share-image';
 import { useI18n } from '@/components/LocaleProvider';
 import { sharePreparedFile } from '@/lib/native-file-share';
 import PushOptIn from '@/components/PushOptIn';
+import AffiliateBlock from '@/components/AffiliateBlock';
+import { captureAnalytics } from '@/lib/analytics-client';
+import { trackDatabaseEvent } from '@/components/EventTracker';
 
 type Panel = 'result' | 'invite' | null;
 
@@ -121,6 +124,12 @@ export default function WinnerActions({
       resultUrl,
     );
     if (sharePromise) {
+      captureAnalytics('result_shared', { channel: 'native', winner });
+      trackDatabaseEvent('result_shared', {
+        tournamentId,
+        locale,
+        metadata: { channel: 'native' },
+      });
       sharePromise.catch((error) => {
         if (error instanceof Error && error.name !== 'AbortError') {
           setNotice(t('common.error'));
@@ -129,6 +138,12 @@ export default function WinnerActions({
       return;
     }
     downloadFile(storyFile);
+    captureAnalytics('result_shared', { channel: platform ?? 'download', winner });
+    trackDatabaseEvent('result_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: platform ?? 'download' },
+    });
     setNotice(
       platform
         ? t('share.imageDownloaded', { platform })
@@ -140,6 +155,12 @@ export default function WinnerActions({
     const file = format === 'story' ? storyFile : squareFile;
     if (!file) return;
     downloadFile(file);
+    captureAnalytics('result_shared', { channel: `${format}_download`, winner });
+    trackDatabaseEvent('result_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: `${format}_download` },
+    });
     setNotice(
       t('share.imageDownloaded', {
         platform: format === 'story' ? 'Story' : t('share.square'),
@@ -151,16 +172,29 @@ export default function WinnerActions({
     if (!resultUrl) return;
     const text = `${t('share.nativeText', { winner })} ✨ ${resultUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    captureAnalytics('result_shared', { channel: 'whatsapp', winner });
+    trackDatabaseEvent('result_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: 'whatsapp' },
+    });
   };
 
   const copyResultLink = () => run(async () => {
     if (!resultUrl) return;
     await navigator.clipboard.writeText(resultUrl);
+    captureAnalytics('result_shared', { channel: 'copy_link', winner });
+    trackDatabaseEvent('result_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: 'copy_link' },
+    });
     setNotice(t('share.copied'));
   });
 
   const nativeInviteShare = () => run(async () => {
     const value = await getInvite();
+    let channel = 'copy_link';
     const data = {
       title: t('invite.nativeTitle'),
       text: t('invite.nativeText'),
@@ -168,34 +202,55 @@ export default function WinnerActions({
     };
     if (navigator.share) {
       await navigator.share(data);
+      channel = 'native';
+      captureAnalytics('invite_sent', { channel: 'native' });
     } else {
       await navigator.clipboard.writeText(value.url);
+      captureAnalytics('invite_sent', { channel: 'copy_link' });
       setNotice(t('invite.copied'));
     }
+    trackDatabaseEvent('invite_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel },
+    });
   });
 
   const inviteWhatsApp = () => run(async () => {
     const value = await getInvite();
     const text = `${t('invite.nativeText')} ✨ ${value.url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    captureAnalytics('invite_sent', { channel: 'whatsapp' });
+    trackDatabaseEvent('invite_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: 'whatsapp' },
+    });
   });
 
   const copyInviteLink = () => run(async () => {
     const value = await getInvite();
     await navigator.clipboard.writeText(value.url);
+    captureAnalytics('invite_sent', { channel: 'copy_link' });
+    trackDatabaseEvent('invite_shared', {
+      tournamentId,
+      locale,
+      metadata: { channel: 'copy_link' },
+    });
     setNotice(t('invite.copied'));
   });
 
   return (
     <>
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-5">
+      <div className="mt-3 grid gap-2 sm:mt-5">
+        <Button onClick={() => setPanel('invite')} className="h-12 rounded-xl bg-rose-700 text-white hover:bg-rose-800">
+          <Users aria-hidden="true" /> {t('winner.invitePartner')}
+        </Button>
         <Button onClick={() => setPanel('result')} variant="outline" className="h-11 rounded-xl bg-white">
           <Share2 aria-hidden="true" /> {t('winner.share')}
         </Button>
-        <Button onClick={() => setPanel('invite')} variant="outline" className="h-11 rounded-xl bg-white">
-          <Users aria-hidden="true" /> {t('winner.invite')}
-        </Button>
       </div>
+      <AffiliateBlock name={winner} locale={locale} />
 
       {panel && (
         <div className="fixed inset-0 z-50 flex items-end bg-stone-950/35 p-2 sm:items-center sm:justify-center" role="presentation">

@@ -3,6 +3,7 @@ import { getUserId } from '@/lib/session';
 import { createInvite } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
 import { getRequestLocale } from '@/lib/locale-server';
+import { recordProductEvent } from '@/lib/events';
 
 export async function POST(request: NextRequest) {
   const userId = await getUserId();
@@ -19,6 +20,12 @@ export async function POST(request: NextRequest) {
   }
   const origin = process.env.AUTH_URL ?? request.nextUrl.origin;
   const locale = await getRequestLocale();
+  await recordProductEvent({
+    eventName: 'invite_created',
+    userId,
+    tournamentId,
+    locale,
+  });
   return NextResponse.json({
     token,
     url: `${origin}/invite/${token}?lang=${encodeURIComponent(locale)}`,
