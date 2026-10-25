@@ -77,16 +77,24 @@ CREATE TABLE IF NOT EXISTS name_datasets (
   publication_date DATE,
   version TEXT NOT NULL,
   notes TEXT,
+  sources JSONB NOT NULL DEFAULT '[]'::jsonb,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE name_datasets
+  ADD COLUMN IF NOT EXISTS sources JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS official_names (
   country_code CHAR(2) NOT NULL REFERENCES name_datasets(country_code) ON DELETE CASCADE,
   gender VARCHAR(4) NOT NULL CHECK (gender IN ('boy', 'girl')),
-  rank INTEGER NOT NULL CHECK (rank BETWEEN 1 AND 50),
+  rank INTEGER NOT NULL CHECK (rank BETWEEN 1 AND 100),
   name VARCHAR(60) NOT NULL,
   PRIMARY KEY (country_code, gender, rank)
 );
+
+ALTER TABLE official_names DROP CONSTRAINT IF EXISTS official_names_rank_check;
+ALTER TABLE official_names
+  ADD CONSTRAINT official_names_rank_check CHECK (rank BETWEEN 1 AND 100);
 
 CREATE TABLE IF NOT EXISTS user_profiles (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,

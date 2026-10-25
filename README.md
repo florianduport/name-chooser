@@ -25,7 +25,7 @@ Each seed stores its country, coverage year, source, URL, and version in Postgre
 | England & Wales | 2025 | [ONS, Baby names 2025](https://www.ons.gov.uk/releases/babynamesinenglandandwales2025) |
 | United States | 2025 | [SSA, Popular Baby Names](https://www.ssa.gov/oact/babynames/) |
 | Spain | 2024 | [INE, nombres de recién nacidos](https://www.ine.es/uc/vPHgh7bV) — latest official year available |
-| Portugal | 2016 | [Archived reproduction of IRN civil-registry data](https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf) — not government-hosted and requires owner approval; newer official IRN releases expose only partial rankings |
+| Portugal | 2025 + 2016 | Owner-approved composite: [IRN provisional 2025 top 10](https://rr.pt/especial/pais/2025/12/22/veja-a-lista-dos-nomes-de-bebes-mais-escolhidos-em-portugal-em-2025/452688/) first, then the [archived IRN-derived 2016 ranking](https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf), deduplicated case/accent-insensitively |
 | Italy | 2025 | [ISTAT, Conta nomi](https://www.istat.it/dati/calcolatori/contanomi/) |
 
 The tracked seed file is `data/name-datasets.json`; `scripts/seed-names.mjs` idempotently upserts it at container startup.

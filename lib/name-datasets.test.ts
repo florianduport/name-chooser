@@ -14,10 +14,30 @@ describe('official country name datasets', () => {
     }
   });
 
-  it.each(['boys', 'girls'] as const)('has 50 unique ranked %s per country', (gender) => {
+  it.each(['boys', 'girls'] as const)('has unique ranked %s per country', (gender) => {
     for (const dataset of datasets) {
-      expect(dataset[gender]).toHaveLength(50);
-      expect(new Set(dataset[gender].map((name) => name.toLocaleLowerCase())).size).toBe(50);
+      const names = dataset[gender];
+      expect(names.length).toBeGreaterThanOrEqual(50);
+      expect(names.length).toBeLessThanOrEqual(100);
+      const keys = names.map((name) =>
+        name.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase(),
+      );
+      expect(new Set(keys).size).toBe(names.length);
     }
+  });
+
+  it('puts the official Portugal 2025 partial rankings before the 2016 archive', () => {
+    const portugal = datasets.find((dataset) => dataset.countryCode === 'PT');
+    expect(portugal?.boys.slice(0, 10)).toEqual([
+      'Francisco', 'Tomás', 'Duarte', 'Afonso', 'Vicente',
+      'João', 'Lourenço', 'Martim', 'Miguel', 'Gabriel',
+    ]);
+    expect(portugal?.girls.slice(0, 10)).toEqual([
+      'Maria', 'Alice', 'Leonor', 'Matilde', 'Benedita',
+      'Aurora', 'Olívia', 'Carolina', 'Camila', 'Francisca',
+    ]);
+    expect(portugal?.boys).toHaveLength(50);
+    expect(portugal?.girls).toHaveLength(52);
+    expect(portugal?.sources).toHaveLength(2);
   });
 });

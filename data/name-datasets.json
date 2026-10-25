@@ -50,14 +50,30 @@
   {
     "countryCode": "PT",
     "countryName": "Portugal",
-    "sourceName": "Archived reproduction of IRN civil-registry data",
-    "sourceUrl": "https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf",
-    "coverageYear": 2016,
-    "publicationDate": "2017-01-05",
-    "version": "pt-irn-2016-v1",
-    "notes": "Historical IRN-derived ranking reproduced by a newspaper archive, not hosted by a government data portal. IRN has newer partial rankings, but no official-hosted top 50 is publicly downloadable. Requires owner approval before production use.",
-    "boys": ["Santiago", "João", "Francisco", "Rodrigo", "Martim", "Afonso", "Tomás", "Miguel", "Duarte", "Lourenço", "Gabriel", "Gonçalo", "Pedro", "Tiago", "Dinis", "Rafael", "Diogo", "Lucas", "Salvador", "Gustavo", "David", "Vicente", "Simão", "José", "Mateus", "Diego", "Manuel", "Henrique", "António", "Daniel", "Vasco", "Leonardo", "Bernardo", "André", "Luís", "Enzo", "Eduardo", "Alexandre", "Isaac", "Kevin", "Rúben", "Filipe", "Matias", "Leandro", "Xavier", "Ricardo", "Samuel", "Artur", "Nuno", "Bruno"],
-    "girls": ["Maria", "Matilde", "Leonor", "Carolina", "Mariana", "Beatriz", "Ana", "Sofia", "Inês", "Margarida", "Francisca", "Lara", "Laura", "Alice", "Joana", "Clara", "Diana", "Madalena", "Luana", "Mara", "Benedita", "Mafalda", "Constança", "Bianca", "Íris", "Sara", "Camila", "Rita", "Gabriela", "Eva", "Carlota", "Letícia", "Vitória", "Ema", "Luísa", "Catarina", "Ariana", "Yasmin", "Yara", "Miriam", "Carminho", "Alícia", "Marta", "Luena", "Rafaela", "Victória", "Núria", "Júlia", "Kyara", "Helena"]
+    "sourceName": "IRN 2025 + archived IRN 2016",
+    "sourceUrl": "https://rr.pt/especial/pais/2025/12/22/veja-a-lista-dos-nomes-de-bebes-mais-escolhidos-em-portugal-em-2025/452688/",
+    "coverageYear": 2025,
+    "publicationDate": "2025-12-22",
+    "version": "pt-irn-2025-2016-merged-v1",
+    "notes": "Owner-approved composite. IRN's provisional 2025 top 10 per sex appears first, followed by the archived IRN-derived 2016 top 50 with case- and accent-insensitive duplicates removed.",
+    "sources": [
+      {
+        "sourceName": "IRN provisional 2025 ranking supplied to Rádio Renascença",
+        "sourceUrl": "https://rr.pt/especial/pais/2025/12/22/veja-a-lista-dos-nomes-de-bebes-mais-escolhidos-em-portugal-em-2025/452688/",
+        "coverageYear": 2025,
+        "publicationDate": "2025-12-22",
+        "scope": "Top 10 per sex, registrations through November 2025"
+      },
+      {
+        "sourceName": "Archived reproduction of IRN 2016 civil-registry ranking",
+        "sourceUrl": "https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf",
+        "coverageYear": 2016,
+        "publicationDate": "2017-01-05",
+        "scope": "Top 50 per sex"
+      }
+    ],
+    "boys": ["Francisco", "Tomás", "Duarte", "Afonso", "Vicente", "João", "Lourenço", "Martim", "Miguel", "Gabriel", "Santiago", "Rodrigo", "Gonçalo", "Pedro", "Tiago", "Dinis", "Rafael", "Diogo", "Lucas", "Salvador", "Gustavo", "David", "Simão", "José", "Mateus", "Diego", "Manuel", "Henrique", "António", "Daniel", "Vasco", "Leonardo", "Bernardo", "André", "Luís", "Enzo", "Eduardo", "Alexandre", "Isaac", "Kevin", "Rúben", "Filipe", "Matias", "Leandro", "Xavier", "Ricardo", "Samuel", "Artur", "Nuno", "Bruno"],
+    "girls": ["Maria", "Alice", "Leonor", "Matilde", "Benedita", "Aurora", "Olívia", "Carolina", "Camila", "Francisca", "Mariana", "Beatriz", "Ana", "Sofia", "Inês", "Margarida", "Lara", "Laura", "Joana", "Clara", "Diana", "Madalena", "Luana", "Mara", "Mafalda", "Constança", "Bianca", "Íris", "Sara", "Rita", "Gabriela", "Eva", "Carlota", "Letícia", "Vitória", "Ema", "Luísa", "Catarina", "Ariana", "Yasmin", "Yara", "Miriam", "Carminho", "Alícia", "Marta", "Luena", "Rafaela", "Victória", "Núria", "Júlia", "Kyara", "Helena"]
   },
   {
     "countryCode": "IT",

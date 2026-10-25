@@ -17,17 +17,32 @@ const pool = new Pool({
 });
 
 const client = await pool.connect();
+const dedupeKey = (name) => name
+  .normalize('NFD')
+  .replace(/\p{Diacritic}/gu, '')
+  .toLocaleLowerCase('pt-PT');
+
 try {
   await client.query('BEGIN');
   for (const dataset of datasets) {
-    if (dataset.boys.length !== 50 || dataset.girls.length !== 50) {
-      throw new Error(`${dataset.countryCode} must contain exactly 50 names per gender`);
+    if (
+      dataset.boys.length < 1 ||
+      dataset.girls.length < 1 ||
+      dataset.boys.length > 100 ||
+      dataset.girls.length > 100
+    ) {
+      throw new Error(`${dataset.countryCode} must contain 1–100 names per gender`);
+    }
+    for (const names of [dataset.boys, dataset.girls]) {
+      if (new Set(names.map(dedupeKey)).size !== names.length) {
+        throw new Error(`${dataset.countryCode} contains a case/accent-insensitive duplicate`);
+      }
     }
     await client.query(
       `INSERT INTO name_datasets
        (country_code, country_name, source_name, source_url, coverage_year,
-        publication_date, version, notes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        publication_date, version, notes, sources, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, NOW())
        ON CONFLICT (country_code) DO UPDATE SET
          country_name = EXCLUDED.country_name,
          source_name = EXCLUDED.source_name,
@@ -36,6 +51,7 @@ try {
          publication_date = EXCLUDED.publication_date,
          version = EXCLUDED.version,
          notes = EXCLUDED.notes,
+         sources = EXCLUDED.sources,
          updated_at = NOW()`,
       [
         dataset.countryCode,
@@ -46,6 +62,12 @@ try {
         dataset.publicationDate,
         dataset.version,
         dataset.notes ?? null,
+        JSON.stringify(dataset.sources ?? [{
+          sourceName: dataset.sourceName,
+          sourceUrl: dataset.sourceUrl,
+          coverageYear: dataset.coverageYear,
+          publicationDate: dataset.publicationDate,
+        }]),
       ],
     );
     await client.query('DELETE FROM official_names WHERE country_code = $1', [dataset.countryCode]);
