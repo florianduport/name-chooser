@@ -14,6 +14,15 @@ import { SUPPORTED_LOCALES, type Locale } from '@/lib/i18n';
 
 type Props = { params: Promise<{ locale: string; segment: string }> };
 
+const START_DUEL: Record<Locale, string> = {
+  fr: 'Lancer un duel',
+  'en-GB': 'Start a duel',
+  'en-US': 'Start a matchup',
+  es: 'Empezar un duelo',
+  pt: 'Começar um duelo',
+  it: 'Inizia un duello',
+};
+
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.flatMap((locale) =>
     listSlugs(locale).map((segment) => ({ locale, segment })),
@@ -88,7 +97,7 @@ export default async function PublicListPage({ params }: Props) {
             LeBabyName
           </Link>
           <Link href={`/?lang=${locale}`} className="inline-flex items-center gap-1 text-sm font-medium text-stone-700">
-            Start a duel <ArrowRight aria-hidden="true" className="size-4" />
+            {START_DUEL[locale]} <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
       </header>
@@ -132,7 +141,7 @@ export default async function PublicListPage({ params }: Props) {
         <nav className="mt-14 border-t border-stone-200 pt-7" aria-label="Related lists">
           <ul className="flex flex-wrap gap-x-5 gap-y-3 text-sm">
             {listSlugs(locale).filter((item) => item !== segment).slice(0, 12).map((item) => (
-              <li key={item}><Link href={`/${locale}/${item}`} className="underline decoration-stone-300 underline-offset-4 hover:decoration-stone-700">{item.replaceAll('-', ' ')}</Link></li>
+              <li key={item}><Link href={`/${locale}/${item}`} className="underline decoration-stone-300 underline-offset-4 hover:decoration-stone-700">{parseList(locale, item)?.title ?? item}</Link></li>
             ))}
           </ul>
         </nav>

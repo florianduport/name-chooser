@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Locale } from '@/lib/i18n';
-import { listSlugs, SEO_ROUTES } from '@/lib/seo';
+import { listSlugs, parseList, SEO_ROUTES } from '@/lib/seo';
 
 const TITLES: Record<Locale, string> = {
   fr: 'Découvrir les prénoms',
@@ -22,7 +22,7 @@ export default function HomeSeoFooter({ locale }: { locale: Locale }) {
         <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label={TITLES[locale]}>
           {[...featured, ...letters].map((slug) => (
             <Link key={slug} href={`/${locale}/${slug}`} className="text-stone-300 underline decoration-stone-700 underline-offset-4 hover:text-white">
-              {slug.replaceAll('-', ' ')}
+              {parseList(locale, slug)?.title ?? slug}
             </Link>
           ))}
         </nav>

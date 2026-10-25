@@ -99,8 +99,9 @@ signed-in people only by the internal numeric user ID; no email is sent.
 | `NEXT_PUBLIC_AFFILIATE_POSTERS_URL` | Poster partner URL |
 
 Affiliate URLs may include `{name}`, which is replaced with the URL-encoded
-winning or viewed name. Empty affiliate variables show non-clickable elements
-marked `Placeholder`; configured links use `rel="sponsored"`.
+winning or viewed name. Empty affiliate variables show localized, non-clickable
+elements clearly marked as not configured; configured links use
+`rel="sponsored"`.
 
 PostHog captures App Router pageviews plus `duel_started`, `round_completed`,
 `duel_finished`, `result_shared`, `invite_sent`, `invite_accepted`,

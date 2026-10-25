@@ -12,6 +12,7 @@ import {
   listSlugs,
   nameAlternates,
   namePath,
+  parseList,
   SEO_ROUTES,
   seoCopy,
   SITE_URL,
@@ -174,7 +175,7 @@ export default async function NamePage({ params }: Props) {
         <nav className="mt-10 border-t border-stone-200 pt-6" aria-label={copy.lists}>
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {listSlugs(locale).slice(0, 5).map((listSlug) => (
-              <li key={listSlug}><Link href={`/${locale}/${listSlug}`} className="underline decoration-stone-300 underline-offset-4 hover:decoration-stone-700">{listSlug.replaceAll('-', ' ')}</Link></li>
+              <li key={listSlug}><Link href={`/${locale}/${listSlug}`} className="underline decoration-stone-300 underline-offset-4 hover:decoration-stone-700">{parseList(locale, listSlug)?.title ?? listSlug}</Link></li>
             ))}
           </ul>
         </nav>
