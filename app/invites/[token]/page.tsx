@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Check, Clock3, Users } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Clock3, Users } from 'lucide-react';
 import { auth } from '@/auth';
 import { getInviteComparison } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
@@ -36,29 +36,61 @@ export default async function InviteComparisonPage({
           <p className="mt-2 text-sm text-stone-600">{t('compare.subtitle')}</p>
         </header>
 
-        <section className="mt-5 rounded-2xl bg-stone-900 px-5 py-4 text-white">
-          <p className="text-xs uppercase tracking-[0.16em] text-stone-400">{t('compare.yours')}</p>
-          <p className="mt-1 font-serif text-3xl">{comparison.sourceWinner}</p>
-        </section>
-
         {comparison.attempts.length === 0 ? (
-          <div className="mt-3 rounded-2xl border border-white/80 bg-white/80 p-5 text-center">
-            <Clock3 aria-hidden="true" className="mx-auto size-6 text-stone-500" />
-            <p className="mt-2 font-semibold">{t('compare.waiting')}</p>
-            <p className="mt-1 text-sm text-stone-600">{t('compare.waitingDescription')}</p>
-          </div>
+          <>
+            <Link
+              href={`/history/${comparison.sourceTournamentId}`}
+              className="mt-5 flex items-center justify-between rounded-2xl bg-stone-900 px-5 py-4 text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-stone-500/30"
+            >
+              <span>
+                <span className="text-xs uppercase tracking-[0.16em] text-stone-400">{t('compare.yours')}</span>
+                <span className="mt-1 block font-serif text-3xl">{comparison.sourceWinner}</span>
+              </span>
+              <ChevronRight aria-hidden="true" />
+            </Link>
+            <div className="mt-3 rounded-2xl border border-white/80 bg-white/80 p-5 text-center">
+              <Clock3 aria-hidden="true" className="mx-auto size-6 text-stone-500" />
+              <p className="mt-2 font-semibold">{t('compare.waiting')}</p>
+              <p className="mt-1 text-sm text-stone-600">{t('compare.waitingDescription')}</p>
+            </div>
+          </>
         ) : (
-          <ol className="mt-3 grid gap-2">
+          <ol className="mt-5 grid gap-4">
             {comparison.attempts.map((attempt) => (
-              <li key={attempt.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/80 bg-white/85 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-stone-500">{attempt.participantName}</p>
-                  <p className="truncate font-serif text-2xl">{attempt.winner}</p>
+              <li key={attempt.id} className="grid gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    href={`/history/${comparison.sourceTournamentId}?against=${attempt.id}`}
+                    className="flex min-w-0 items-center justify-between gap-2 rounded-2xl bg-stone-900 px-4 py-3 text-white focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-stone-500/30"
+                  >
+                    <span className="min-w-0">
+                      <span className="truncate text-xs text-stone-400">{comparison.sourceParticipantName}</span>
+                      <span className="block truncate font-serif text-2xl">{comparison.sourceWinner}</span>
+                    </span>
+                    <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
+                  </Link>
+                  <Link
+                    href={`/history/${attempt.id}?against=${comparison.sourceTournamentId}`}
+                    className="flex min-w-0 items-center justify-between gap-2 rounded-2xl border border-white/80 bg-white/85 px-4 py-3 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-stone-500/30"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs text-stone-500">{attempt.participantName}</span>
+                      <span className="block truncate font-serif text-2xl">{attempt.winner}</span>
+                    </span>
+                    <ChevronRight aria-hidden="true" className="size-4 shrink-0" />
+                  </Link>
                 </div>
-                <span className={`flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold ${attempt.matches ? 'bg-emerald-100 text-emerald-900' : 'bg-stone-100 text-stone-700'}`}>
-                  {attempt.matches && <Check aria-hidden="true" className="size-3.5" />}
-                  {attempt.matches ? t('compare.same') : t('compare.different')}
-                </span>
+                <div className="flex flex-wrap items-center gap-2 px-1">
+                  <span className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold ${attempt.matches ? 'bg-emerald-100 text-emerald-900' : 'bg-stone-100 text-stone-700'}`}>
+                    {attempt.matches && <Check aria-hidden="true" className="size-3.5" />}
+                    {attempt.matches ? t('compare.same') : t('compare.different')}
+                  </span>
+                  {attempt.commonNames.length > 0 && (
+                    <span className="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-900">
+                      {t('compare.common', { names: attempt.commonNames.join(', ') })}
+                    </span>
+                  )}
+                </div>
               </li>
             ))}
           </ol>

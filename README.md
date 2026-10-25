@@ -11,6 +11,9 @@ LeBabyName is a private, multi-user baby-name tournament in six locales. Sign in
 - Persisted tournament votes, rollback, winners, and private result history
 - Shareable Story and square result images with native mobile sharing and social fallbacks
 - Tokenized invitations that let another signed-in user take the same tournament and compare results
+- Private round-by-round histories, final rankings, and shared high-ranking names
+- In-app invite-result notifications plus optional standards-based Web Push
+- Balanced first-round byes that guarantee a two-name final for every list size
 - Compact mobile layouts with large tap targets
 - PostgreSQL persistence with automatic startup migrations
 - Production health endpoint at `/api/health`
@@ -57,3 +60,7 @@ npm run build
 ## Coolify
 
 The production Compose stack builds the app, runs migrations before startup, exposes the application only to Coolify's network, and persists PostgreSQL in a named volume. See [DEPLOY.md](DEPLOY.md) for the exact environment variables, Google Cloud setup, callback URL, backups, and deployment procedure.
+
+Web Push is optional. When VAPID variables are configured, users can opt in after
+sharing an invitation. On iOS/iPadOS 16.4+, push requires installing LeBabyName
+to the Home Screen.

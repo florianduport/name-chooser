@@ -9,6 +9,7 @@ import CountrySelector from '@/components/CountrySelector';
 import { useI18n } from '@/components/LocaleProvider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Gender } from '@/types';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function GenderSelection() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function GenderSelection() {
         </Link>
         <nav aria-label={t('common.account')} className="flex shrink-0 gap-1">
           <LanguageSwitcher compact />
+          <NotificationBell />
           <Button asChild variant="ghost" size="icon-lg" aria-label={t('home.results')} className="bg-white/60">
             <Link href="/history"><Trophy aria-hidden="true" /></Link>
           </Button>

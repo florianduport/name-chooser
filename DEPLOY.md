@@ -34,12 +34,20 @@ Create a resource from this repository, choose the **Docker Compose** build pack
 | `SERVICE_PASSWORD_POSTGRES` | Let Coolify generate this value, or provide a long random password |
 | `DATABASE_URL` | Optional override; Compose defaults to the internal PostgreSQL service URL |
 | `DATABASE_SSL` | Leave unset for the bundled database; set `true` only for an external database requiring TLS |
+| `VAPID_PUBLIC_KEY` | Optional Web Push public key |
+| `VAPID_PRIVATE_KEY` | Optional Web Push private key |
+| `VAPID_SUBJECT` | Optional contact URI, normally `mailto:admin@example.com` |
 
 The effective default database URL is:
 
 `postgresql://namechooser:<SERVICE_PASSWORD_POSTGRES>@db:5432/namechooser`
 
 `AUTH_URL` is the public origin, not the callback. Auth.js appends `/api/auth/callback/google`.
+
+Generate optional push credentials with `npx web-push generate-vapid-keys`. Set all
+three VAPID variables together. If they are absent, in-app notifications continue
+to work and push subscription UI stays hidden. On iPhone and iPad, Web Push
+requires iOS/iPadOS 16.4+ and the site must first be added to the Home Screen.
 
 ### 3. Deploy
 

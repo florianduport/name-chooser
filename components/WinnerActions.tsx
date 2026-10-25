@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Copy,
@@ -14,6 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { createResultImage, ShareImageFormat } from '@/lib/share-image';
 import { useI18n } from '@/components/LocaleProvider';
+import { sharePreparedFile } from '@/lib/native-file-share';
+import PushOptIn from '@/components/PushOptIn';
 
 type Panel = 'result' | 'invite' | null;
 
@@ -29,16 +31,11 @@ export default function WinnerActions({
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [invite, setInvite] = useState<{ url: string; compareUrl: string } | null>(null);
   const [isWorking, setIsWorking] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
+  const [storyFile, setStoryFile] = useState<File | null>(null);
+  const [squareFile, setSquareFile] = useState<File | null>(null);
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-
-  const getResultUrl = async () => {
-    if (resultUrl) return resultUrl;
-    const response = await fetch(`/api/tournaments/${tournamentId}/share`, { method: 'POST' });
-    const data = await response.json();
-    if (!response.ok) throw new Error(t('common.error'));
-    setResultUrl(data.url);
-    return data.url as string;
-  };
 
   const getInvite = async () => {
     if (invite) return invite;
@@ -51,8 +48,56 @@ export default function WinnerActions({
     if (!response.ok) throw new Error(t('common.error'));
     const value = { url: data.url as string, compareUrl: data.compareUrl as string };
     setInvite(value);
+    setShowPushPrompt(true);
     return value;
   };
+
+  const prepareResultShare = useCallback(async () => {
+    if (storyFile && squareFile && resultUrl) return;
+    setIsPreparing(true);
+    setNotice(null);
+    try {
+      const [url, story, square] = await Promise.all([
+        resultUrl
+          ? Promise.resolve(resultUrl)
+          : fetch(`/api/tournaments/${tournamentId}/share`, { method: 'POST' })
+              .then(async (response) => {
+                const data = await response.json();
+                if (!response.ok) throw new Error(t('common.error'));
+                return data.url as string;
+              }),
+        storyFile
+          ? Promise.resolve(storyFile)
+          : createResultImage(winner, 'story', locale),
+        squareFile
+          ? Promise.resolve(squareFile)
+          : createResultImage(winner, 'square', locale),
+      ]);
+      setResultUrl(url);
+      setStoryFile(story);
+      setSquareFile(square);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : t('common.error'));
+    } finally {
+      setIsPreparing(false);
+    }
+  }, [
+    locale,
+    resultUrl,
+    squareFile,
+    storyFile,
+    t,
+    tournamentId,
+    winner,
+  ]);
+
+  useEffect(() => {
+    if (panel !== 'result') return;
+    const timer = window.setTimeout(prepareResultShare, 0);
+    return () => window.clearTimeout(timer);
+  }, [panel, prepareResultShare]);
+
+  const dismissPushPrompt = useCallback(() => setShowPushPrompt(false), []);
 
   const run = async (action: () => Promise<void>) => {
     setIsWorking(true);
@@ -66,47 +111,51 @@ export default function WinnerActions({
     }
   };
 
-  const nativeResultShare = () => run(async () => {
-    const url = await getResultUrl();
-    const files = await Promise.all([
-      createResultImage(winner, 'story', locale),
-      createResultImage(winner, 'square', locale),
-    ]);
-    const shareData = {
-      title: t('share.nativeTitle', { winner }),
-      text: t('share.nativeText', { winner }),
-      url,
-      files,
-    };
-    if (navigator.share && navigator.canShare?.({ files })) {
-      await navigator.share(shareData);
+  const shareStory = (platform?: string) => {
+    if (!storyFile || !resultUrl) return;
+    setNotice(null);
+    const sharePromise = sharePreparedFile(
+      navigator,
+      storyFile,
+      t('share.nativeText', { winner }),
+      resultUrl,
+    );
+    if (sharePromise) {
+      sharePromise.catch((error) => {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          setNotice(t('common.error'));
+        }
+      });
       return;
     }
-    if (navigator.share) {
-      await navigator.share({ title: shareData.title, text: shareData.text, url });
-      return;
-    }
-    downloadFile(files[0]);
-    setNotice(t('share.downloadHint'));
-  });
-
-  const download = (format: ShareImageFormat, platform?: string) => run(async () => {
-    downloadFile(await createResultImage(winner, format, locale));
+    downloadFile(storyFile);
     setNotice(
       platform
         ? t('share.imageDownloaded', { platform })
-        : t('share.imageDownloaded', { platform: format === 'story' ? 'Story' : t('share.square') }),
+        : t('share.downloadHint'),
     );
-  });
+  };
 
-  const resultWhatsApp = () => run(async () => {
-    const url = await getResultUrl();
-    const text = `${t('share.nativeText', { winner })} ✨ ${url}`;
+  const download = (format: ShareImageFormat) => {
+    const file = format === 'story' ? storyFile : squareFile;
+    if (!file) return;
+    downloadFile(file);
+    setNotice(
+      t('share.imageDownloaded', {
+        platform: format === 'story' ? 'Story' : t('share.square'),
+      }),
+    );
+  };
+
+  const resultWhatsApp = () => {
+    if (!resultUrl) return;
+    const text = `${t('share.nativeText', { winner })} ✨ ${resultUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
-  });
+  };
 
   const copyResultLink = () => run(async () => {
-    await navigator.clipboard.writeText(await getResultUrl());
+    if (!resultUrl) return;
+    await navigator.clipboard.writeText(resultUrl);
     setNotice(t('share.copied'));
   });
 
@@ -174,24 +223,29 @@ export default function WinnerActions({
 
             {panel === 'result' ? (
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <Button disabled={isWorking} onClick={nativeResultShare} className="col-span-2 h-12 bg-stone-900 text-white hover:bg-stone-800">
+                <Button disabled={isWorking || isPreparing || !storyFile || !resultUrl} onClick={() => shareStory()} className="col-span-2 h-12 bg-stone-900 text-white hover:bg-stone-800">
                   <Share2 aria-hidden="true" /> {t('share.system')}
                 </Button>
-                <Button disabled={isWorking} onClick={resultWhatsApp} variant="outline" className="h-11 bg-white">
+                <Button disabled={isWorking || isPreparing || !resultUrl} onClick={resultWhatsApp} variant="outline" className="h-11 bg-white">
                   <MessageCircle aria-hidden="true" /> WhatsApp
                 </Button>
-                <Button disabled={isWorking} onClick={copyResultLink} variant="outline" className="h-11 bg-white">
+                <Button disabled={isWorking || isPreparing || !resultUrl} onClick={copyResultLink} variant="outline" className="h-11 bg-white">
                   <Copy aria-hidden="true" /> {t('share.copy')}
                 </Button>
-                <Button disabled={isWorking} onClick={() => download('story', 'Instagram')} variant="outline" className="h-11 bg-white">Instagram</Button>
-                <Button disabled={isWorking} onClick={() => download('story', 'TikTok')} variant="outline" className="h-11 bg-white">TikTok</Button>
-                <Button disabled={isWorking} onClick={() => download('story', 'Snapchat')} variant="outline" className="h-11 bg-white">Snapchat</Button>
-                <Button disabled={isWorking} onClick={() => download('square')} variant="outline" className="h-11 bg-white">
+                <Button disabled={isWorking || isPreparing || !storyFile || !resultUrl} onClick={() => shareStory('Instagram')} variant="outline" className="h-11 bg-white">Instagram</Button>
+                <Button disabled={isWorking || isPreparing || !storyFile || !resultUrl} onClick={() => shareStory('TikTok')} variant="outline" className="h-11 bg-white">TikTok</Button>
+                <Button disabled={isWorking || isPreparing || !storyFile || !resultUrl} onClick={() => shareStory('Snapchat')} variant="outline" className="h-11 bg-white">Snapchat</Button>
+                <Button disabled={isWorking || isPreparing || !squareFile} onClick={() => download('square')} variant="outline" className="h-11 bg-white">
                   <Download aria-hidden="true" /> {t('share.square')}
                 </Button>
                 <p className="col-span-2 mt-1 text-xs leading-5 text-stone-500">
                   {t('share.downloadHint')}
                 </p>
+                {isPreparing && (
+                  <p className="col-span-2 text-center text-xs text-stone-500" role="status">
+                    {t('names.processing')}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="mt-5 grid grid-cols-2 gap-2">
@@ -211,6 +265,7 @@ export default function WinnerActions({
                     </Link>
                   </Button>
                 )}
+                {showPushPrompt && <PushOptIn onDismiss={dismissPushPrompt} />}
               </div>
             )}
 
