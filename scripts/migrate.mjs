@@ -171,6 +171,36 @@ CREATE TABLE IF NOT EXISTS tournament_votes (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (tournament_id, sequence)
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind VARCHAR(32) NOT NULL
+    CHECK (kind IN ('invitee_finished', 'inviter_finished')),
+  actor_name VARCHAR(255) NOT NULL,
+  invite_token UUID NOT NULL,
+  tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+  read_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, kind, tournament_id)
+);
+
+CREATE INDEX IF NOT EXISTS notifications_user_created
+  ON notifications (user_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  locale VARCHAR(5) NOT NULL DEFAULT 'fr',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS push_subscriptions_user
+  ON push_subscriptions (user_id);
 `;
 
 try {

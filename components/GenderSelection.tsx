@@ -9,6 +9,7 @@ import CountrySelector from '@/components/CountrySelector';
 import { useI18n } from '@/components/LocaleProvider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Gender } from '@/types';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function GenderSelection() {
   const router = useRouter();
@@ -19,32 +20,35 @@ export default function GenderSelection() {
   };
 
   return (
-    <main className="relative flex min-h-dvh items-center overflow-hidden bg-[#f7f1e8] px-4 py-4 text-stone-900 sm:px-5 sm:py-12">
+    <main className="relative flex min-h-dvh items-center overflow-hidden bg-[#f7f1e8] px-4 pb-4 pt-16 text-stone-900 sm:px-5 sm:pb-12 sm:pt-20">
       <div aria-hidden="true" className="absolute -right-24 -top-32 size-80 rounded-full bg-rose-200/50 blur-3xl" />
       <div aria-hidden="true" className="absolute -bottom-28 -left-24 size-80 rounded-full bg-sky-200/50 blur-3xl" />
-      <nav aria-label={t('common.account')} className="absolute right-3 top-3 z-10 flex gap-1">
-        <LanguageSwitcher />
-        <Button asChild variant="ghost" size="icon-lg" aria-label={t('home.results')} className="bg-white/60">
-          <Link href="/history"><Trophy aria-hidden="true" /></Link>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon-lg"
-          aria-label={t('home.logout')}
-          className="bg-white/60"
-          onClick={() => signOut({ callbackUrl: '/' })}
-        >
-          <LogOut aria-hidden="true" />
-        </Button>
-      </nav>
+      <header className="absolute inset-x-3 top-3 z-10 flex h-10 items-center justify-between gap-2">
+        <Link href="/" className="flex min-w-0 items-center gap-2 rounded-xl focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-stone-500/30">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white shadow-[0_12px_30px_-14px_rgba(28,25,23,0.8)]">
+            <Heart aria-hidden="true" className="size-5" fill="currentColor" />
+          </span>
+          <span className="truncate font-serif text-lg font-semibold tracking-[-0.03em]">LeBabyName</span>
+        </Link>
+        <nav aria-label={t('common.account')} className="flex shrink-0 gap-1">
+          <LanguageSwitcher compact />
+          <NotificationBell />
+          <Button asChild variant="ghost" size="icon-lg" aria-label={t('home.results')} className="bg-white/60">
+            <Link href="/history"><Trophy aria-hidden="true" /></Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            aria-label={t('home.logout')}
+            className="bg-white/60"
+            onClick={() => signOut({ callbackUrl: '/' })}
+          >
+            <LogOut aria-hidden="true" />
+          </Button>
+        </nav>
+      </header>
       <div className="relative mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-12">
         <section>
-          <div className="mb-3 flex items-center gap-2 sm:mb-7">
-            <span className="flex size-10 items-center justify-center rounded-full bg-stone-900 text-white shadow-[0_12px_30px_-14px_rgba(28,25,23,0.8)] sm:size-12">
-              <Heart aria-hidden="true" className="size-5" fill="currentColor" />
-            </span>
-            <span className="font-serif text-lg font-semibold tracking-[-0.03em]">LeBabyName</span>
-          </div>
           <h1 className="max-w-xl font-serif text-4xl leading-[0.98] tracking-[-0.04em] text-balance sm:text-7xl">
             {t('landing.headline')}
           </h1>

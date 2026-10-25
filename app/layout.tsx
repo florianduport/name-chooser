@@ -19,13 +19,40 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
   const title = translate(locale, 'meta.title');
   const description = translate(locale, 'meta.description');
+  const image = `/api/og?lang=${encodeURIComponent(locale)}&kind=home`;
   return {
     metadataBase: new URL(process.env.AUTH_URL ?? "http://localhost:3000"),
     applicationName: "LeBabyName",
+    appleWebApp: {
+      capable: true,
+      title: "LeBabyName",
+      statusBarStyle: "black-translucent",
+    },
     title: { default: title, template: "%s · LeBabyName" },
     description,
-    openGraph: { type: "website", siteName: "LeBabyName", title, description, locale: locale.replace('-', '_') },
-    twitter: { card: "summary_large_image", title, description },
+    manifest: "/manifest.webmanifest",
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "64x64" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      ],
+      apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    },
+    openGraph: {
+      type: "website",
+      siteName: "LeBabyName",
+      title,
+      description,
+      locale: locale.replace('-', '_'),
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }
 

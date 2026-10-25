@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserId } from '@/lib/session';
 import { createInvite } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
+import { getRequestLocale } from '@/lib/locale-server';
 
 export async function POST(request: NextRequest) {
   const userId = await getUserId();
@@ -17,9 +18,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Résultat introuvable' }, { status: 404 });
   }
   const origin = process.env.AUTH_URL ?? request.nextUrl.origin;
+  const locale = await getRequestLocale();
   return NextResponse.json({
     token,
-    url: `${origin}/invite/${token}`,
-    compareUrl: `${origin}/invites/${token}`,
+    url: `${origin}/invite/${token}?lang=${encodeURIComponent(locale)}`,
+    compareUrl: `${origin}/invites/${token}?lang=${encodeURIComponent(locale)}`,
   });
 }

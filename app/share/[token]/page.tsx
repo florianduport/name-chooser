@@ -1,22 +1,50 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Crown, Heart } from 'lucide-react';
 import { getPublicResult } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
 import { Button } from '@/components/ui/button';
-import { getRequestLocale } from '@/lib/locale-server';
 import { translate } from '@/lib/i18n';
+import { getPageLocale } from '@/lib/page-locale';
+
+type PageProps = {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ lang?: string | string[] }>;
+};
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const { token } = await params;
+  const result = isUuid(token) ? await getPublicResult(token) : null;
+  const locale = await getPageLocale(searchParams);
+  const title = result ? `${result.winner} · LeBabyName` : translate(locale, 'meta.title');
+  const description = translate(locale, 'shared.description');
+  const winner = result?.winner ?? 'LeBabyName';
+  const image = `/api/og?lang=${encodeURIComponent(locale)}&kind=result&winner=${encodeURIComponent(winner)}`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
+  };
+}
 
 export default async function SharedResultPage({
   params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+  searchParams,
+}: PageProps) {
   const { token } = await params;
   if (!isUuid(token)) notFound();
   const result = await getPublicResult(token);
   if (!result) notFound();
-  const locale = await getRequestLocale();
+  const locale = await getPageLocale(searchParams);
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
 
   return (
@@ -29,7 +57,7 @@ export default async function SharedResultPage({
         <h1 className="mt-2 break-words font-serif text-6xl tracking-[-0.04em]">{result.winner}</h1>
         <p className="mt-4 text-sm leading-6 text-stone-600">{t('shared.description')}</p>
         <Button asChild className="mt-7 h-12 w-full rounded-xl bg-stone-900 text-white hover:bg-stone-800">
-          <Link href="/"><Heart aria-hidden="true" /> {t('shared.cta')}</Link>
+          <Link href={`/?lang=${locale}`}><Heart aria-hidden="true" /> {t('shared.cta')}</Link>
         </Button>
       </section>
     </main>

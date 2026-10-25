@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Trophy, Users } from 'lucide-react';
 import { auth } from '@/auth';
 import { getTournamentResults } from '@/lib/tournaments-db';
 import { Button } from '@/components/ui/button';
@@ -39,12 +39,15 @@ export default async function HistoryPage() {
           <ol className="mt-6 grid gap-2">
             {results.map((result) => (
               <li key={result.id} className="flex items-center justify-between gap-4 rounded-2xl border border-white/80 bg-white/85 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-serif text-2xl tracking-[-0.02em]">{result.winner}</p>
-                  <p className="text-xs text-stone-500">
-                    {t('history.choices', { count: result.choices })} · {result.mode === 'database' ? t('history.official') : t('history.custom')}
-                  </p>
-                </div>
+                <Link href={`/history/${result.id}`} className="flex min-w-0 flex-1 items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500/30">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-serif text-2xl tracking-[-0.02em]">{result.winner}</span>
+                    <span className="block text-xs text-stone-500">
+                      {t('history.choices', { count: result.choices })} · {result.mode === 'database' ? t('history.official') : t('history.custom')}
+                    </span>
+                  </span>
+                  <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-stone-400" />
+                </Link>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <time className="text-xs text-stone-500" dateTime={result.completedAt}>
                     {new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(result.completedAt))}
