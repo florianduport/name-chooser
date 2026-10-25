@@ -3,6 +3,7 @@ import { getUserId } from '@/lib/session';
 import { createResultShare } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
 import { getRequestLocale } from '@/lib/locale-server';
+import { recordProductEvent } from '@/lib/events';
 
 export async function POST(
   request: Request,
@@ -22,6 +23,13 @@ export async function POST(
   }
   const origin = process.env.AUTH_URL ?? new URL(request.url).origin;
   const locale = await getRequestLocale();
+  await recordProductEvent({
+    eventName: 'result_share_created',
+    userId,
+    tournamentId: id,
+    shareToken: shared.share_token,
+    locale,
+  });
   return NextResponse.json({
     winner: shared.winner,
     url: `${origin}/share/${shared.share_token}?lang=${encodeURIComponent(locale)}`,

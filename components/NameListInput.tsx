@@ -10,11 +10,12 @@ import { useI18n } from '@/components/LocaleProvider';
 interface NameListInputProps {
   onConfirm: (names: string[], saveNames: boolean) => Promise<void>;
   gender: 'boy' | 'girl';
+  initialName?: string;
 }
 
-export default function NameListInput({ onConfirm, gender }: NameListInputProps) {
+export default function NameListInput({ onConfirm, gender, initialName = '' }: NameListInputProps) {
   const { t } = useI18n();
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(initialName);
   const [isLoading, setIsLoading] = useState(false);
   const [saveNames, setSaveNames] = useState(true);
   const [error, setError] = useState<string | null>(null);

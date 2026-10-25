@@ -17,14 +17,19 @@ const pool = new Pool({
 
 const migration = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255),
   email VARCHAR(255) UNIQUE,
   "emailVerified" TIMESTAMPTZ,
-  image TEXT
+  image TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 CREATE TABLE IF NOT EXISTS accounts (
   id SERIAL PRIMARY KEY,
@@ -89,8 +94,18 @@ CREATE TABLE IF NOT EXISTS official_names (
   gender VARCHAR(4) NOT NULL CHECK (gender IN ('boy', 'girl')),
   rank INTEGER NOT NULL CHECK (rank BETWEEN 1 AND 100),
   name VARCHAR(60) NOT NULL,
+  origin TEXT,
+  meanings JSONB,
+  meaning_source_url TEXT,
   PRIMARY KEY (country_code, gender, rank)
 );
+
+ALTER TABLE official_names
+  ADD COLUMN IF NOT EXISTS origin TEXT;
+ALTER TABLE official_names
+  ADD COLUMN IF NOT EXISTS meanings JSONB;
+ALTER TABLE official_names
+  ADD COLUMN IF NOT EXISTS meaning_source_url TEXT;
 
 ALTER TABLE official_names DROP CONSTRAINT IF EXISTS official_names_rank_check;
 ALTER TABLE official_names
@@ -201,6 +216,49 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 
 CREATE INDEX IF NOT EXISTS push_subscriptions_user
   ON push_subscriptions (user_id);
+
+CREATE TABLE IF NOT EXISTS product_events (
+  id BIGSERIAL PRIMARY KEY,
+  event_name VARCHAR(48) NOT NULL CHECK (
+    event_name IN (
+      'invite_created',
+      'invite_shared',
+      'invite_accepted',
+      'invitee_finished',
+      'result_share_created',
+      'result_shared',
+      'shared_result_viewed',
+      'shared_result_conversion'
+    )
+  ),
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  tournament_id UUID REFERENCES tournaments(id) ON DELETE SET NULL,
+  share_token UUID,
+  locale VARCHAR(5),
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE product_events DROP CONSTRAINT IF EXISTS product_events_event_name_check;
+ALTER TABLE product_events
+  ADD CONSTRAINT product_events_event_name_check CHECK (
+    event_name IN (
+      'invite_created',
+      'invite_shared',
+      'invite_accepted',
+      'invitee_finished',
+      'result_share_created',
+      'result_shared',
+      'shared_result_viewed',
+      'shared_result_conversion'
+    )
+  );
+
+CREATE INDEX IF NOT EXISTS product_events_name_created
+  ON product_events (event_name, created_at DESC);
+CREATE INDEX IF NOT EXISTS product_events_tournament
+  ON product_events (tournament_id, created_at DESC)
+  WHERE tournament_id IS NOT NULL;
 `;
 
 try {

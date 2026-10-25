@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/session';
 import { acceptInvite } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
+import { recordProductEvent } from '@/lib/events';
+import { getRequestLocale } from '@/lib/locale-server';
 
 export async function POST(
   _request: Request,
@@ -22,5 +24,12 @@ export async function POST(
       { status: 404 },
     );
   }
+  await recordProductEvent({
+    eventName: 'invite_accepted',
+    userId,
+    tournamentId: tournament.id,
+    locale: await getRequestLocale(),
+    metadata: { inviteToken: token },
+  });
   return NextResponse.json(tournament, { status: 201 });
 }

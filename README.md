@@ -11,6 +11,10 @@ LeBabyName is a private, multi-user baby-name tournament in six locales. Sign in
 - Persisted tournament votes, rollback, winners, and private result history
 - Shareable Story and square result images with native mobile sharing and social fallbacks
 - Tokenized invitations that let another signed-in user take the same tournament and compare results
+- Indexable localized name profiles and official/thematic name lists with canonical and hreflang metadata
+- JSON-LD, localized Open Graph images, `sitemap.xml`, and `robots.txt`
+- Consent-gated PostHog funnel analytics and PostgreSQL viral-loop events
+- Optional, consent-gated ad slots and configurable sponsored product links
 - Private round-by-round histories, final rankings, and shared high-ranking names
 - In-app invite-result notifications plus optional standards-based Web Push
 - Balanced first-round byes that guarantee a two-name final for every list size
@@ -32,6 +36,22 @@ Each seed stores its country, coverage year, source, URL, and version in Postgre
 | Italy | 2025 | [ISTAT, Conta nomi](https://www.istat.it/dati/calcolatori/contanomi/) |
 
 The tracked seed file is `data/name-datasets.json`; `scripts/seed-names.mjs` idempotently upserts it at container startup.
+Curated etymologies are stored separately in `data/name-meanings.json`. Every
+meaning has a source URL; names without reliable source material deliberately
+omit the meaning and origin sections.
+
+## Public discovery routes
+
+All discovery pages are server-rendered and localized under `/{locale}`:
+
+- Name profiles: `/fr/prenom/leo`, `/en-GB/name/leo`,
+  `/es/nombre/leo`, `/pt/nome/leo`, and `/it/nome/leo`
+- Country ranking examples: `/fr/top-prenoms-2025-france` and
+  `/en-US/top-baby-names-2025-usa`
+- Derived lists for short and unisex names, girl/boy rankings, and first letters
+- Machine discovery: `/sitemap.xml` and `/robots.txt`
+
+Supported locale prefixes are `fr`, `en-GB`, `en-US`, `es`, `pt`, and `it`.
 
 ## Local development
 
@@ -56,6 +76,37 @@ npm test
 npm run lint
 npm run build
 ```
+
+## Optional analytics, ads, and affiliate links
+
+All optional measurement and advertising stays off until the visitor accepts
+the shared cookie-consent prompt. PostHog is completely disabled when
+`NEXT_PUBLIC_POSTHOG_KEY` is empty. It defaults to the EU endpoint and identifies
+signed-in people only by the internal numeric user ID; no email is sent.
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_POSTHOG_KEY` | Enables PostHog after consent |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host; defaults to `https://eu.i.posthog.com` |
+| `ADS_ENABLED` | Enables the small, dismissible duel ad placeholders; defaults to `false` |
+| `ADSENSE_CLIENT_ID` | Optional AdSense client ID loaded after consent |
+| `ADSENSE_SLOT_BETWEEN_ROUNDS` | Optional provider slot ID between rounds |
+| `ADSENSE_SLOT_BEFORE_RESULT` | Optional provider slot ID before result actions |
+| `NEXT_PUBLIC_AFFILIATE_BIRTH_ANNOUNCEMENTS_URL` | Birth-announcement partner URL |
+| `NEXT_PUBLIC_AFFILIATE_JEWELRY_URL` | Jewelry partner URL |
+| `NEXT_PUBLIC_AFFILIATE_BODYSUITS_URL` | Bodysuit partner URL |
+| `NEXT_PUBLIC_AFFILIATE_MUGS_URL` | Mug partner URL |
+| `NEXT_PUBLIC_AFFILIATE_POSTERS_URL` | Poster partner URL |
+
+Affiliate URLs may include `{name}`, which is replaced with the URL-encoded
+winning or viewed name. Empty affiliate variables show non-clickable elements
+marked `Placeholder`; configured links use `rel="sponsored"`.
+
+PostHog captures App Router pageviews plus `duel_started`, `round_completed`,
+`duel_finished`, `result_shared`, `invite_sent`, `invite_accepted`,
+`invitee_finished`, `signup`, `name_page_viewed`, `affiliate_clicked`, and
+`ad_impression`. The `product_events` PostgreSQL table also records invite,
+share, shared-result view, and conversion events for first-party loop analysis.
 
 ## Coolify
 

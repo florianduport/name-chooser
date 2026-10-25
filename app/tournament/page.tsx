@@ -9,6 +9,7 @@ import TournamentBracket from '@/components/TournamentBracket';
 import { Button } from '@/components/ui/button';
 import { Gender, TournamentMode } from '@/types';
 import { useI18n } from '@/components/LocaleProvider';
+import { captureAnalytics } from '@/lib/analytics-client';
 
 type TournamentPhase = 'mode-selection' | 'name-input' | 'tournament' | 'loading';
 
@@ -18,8 +19,9 @@ function TournamentContent() {
     const { t } = useI18n();
     const genderParam = searchParams.get('gender');
     const inviteToken = searchParams.get('invite');
+    const seededName = searchParams.get('name')?.trim() ?? '';
     const [gender, setGender] = useState<Gender>(genderParam === 'girl' ? 'girl' : 'boy');
-    const [phase, setPhase] = useState<TournamentPhase>(inviteToken ? 'loading' : 'mode-selection');
+    const [phase, setPhase] = useState<TournamentPhase>(inviteToken ? 'loading' : seededName ? 'name-input' : 'mode-selection');
     const [names, setNames] = useState<string[]>([]);
     const [tournamentId, setTournamentId] = useState<string | null>(null);
     const [tournamentMode, setTournamentMode] = useState<TournamentMode | null>(null);
@@ -39,6 +41,8 @@ function TournamentContent() {
                     setTournamentId(data.id);
                     setTournamentMode(data.mode);
                     setPhase('tournament');
+                    captureAnalytics('invite_accepted', { invite_token: inviteToken });
+                    captureAnalytics('duel_started', { mode: data.mode, gender: data.gender, invited: true });
                 })
                 .catch((error: unknown) => {
                     setError(error instanceof Error ? error.message : t('tournament.empty'));
@@ -81,6 +85,7 @@ function TournamentContent() {
         setTournamentMode(mode);
         setNames(nameList);
         setPhase('tournament');
+        captureAnalytics('duel_started', { mode, gender, name_count: nameList.length, invited: false });
     };
 
     const loadNamesFromDatabase = async () => {
@@ -175,12 +180,12 @@ function TournamentContent() {
                         <Button onClick={handleBack} variant="ghost" className="h-10 self-start">
                             <ArrowLeft aria-hidden="true" /> {t('common.back')}
                         </Button>
-                        <NameListInput onConfirm={handleCustomNamesConfirm} gender={gender} />
+                        <NameListInput onConfirm={handleCustomNamesConfirm} gender={gender} initialName={seededName} />
                     </div>
                 )}
 
                 {phase === 'tournament' && names.length > 0 && tournamentId && tournamentMode && (
-                    <TournamentBracket initialNames={names} gender={gender} tournamentId={tournamentId} mode={tournamentMode} />
+                    <TournamentBracket initialNames={names} gender={gender} tournamentId={tournamentId} mode={tournamentMode} invited={Boolean(inviteToken)} />
                 )}
             </div>
         </main>

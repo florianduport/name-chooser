@@ -8,6 +8,9 @@ if (!connectionString) throw new Error('DATABASE_URL is required to seed names')
 const datasets = JSON.parse(
   await readFile(new URL('../data/name-datasets.json', import.meta.url), 'utf8'),
 );
+const nameMeanings = JSON.parse(
+  await readFile(new URL('../data/name-meanings.json', import.meta.url), 'utf8'),
+);
 const pool = new Pool({
   connectionString,
   connectionTimeoutMillis: 5_000,
@@ -79,6 +82,19 @@ try {
         [dataset.countryCode, gender, names],
       );
     }
+  }
+  for (const entry of nameMeanings) {
+    await client.query(
+      `UPDATE official_names
+       SET origin = $1, meanings = $2::jsonb, meaning_source_url = $3
+       WHERE LOWER(UNACCENT(name)) = ANY($4::text[])`,
+      [
+        entry.origin,
+        JSON.stringify(entry.meanings),
+        entry.sourceUrl,
+        entry.names.map((name) => dedupeKey(name)),
+      ],
+    );
   }
   await client.query('COMMIT');
   console.log(`Seeded ${datasets.length} official country datasets`);

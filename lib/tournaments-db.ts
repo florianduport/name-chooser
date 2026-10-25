@@ -121,6 +121,12 @@ export async function recordVote(
       );
       const inviteId = tournament.rows[0].invite_id;
       if (inviteId) {
+        await client.query(
+          `INSERT INTO product_events
+             (event_name, user_id, tournament_id, metadata)
+           VALUES ('invitee_finished', $1, $2, jsonb_build_object('inviteId', $3::text))`,
+          [userId, tournamentId, inviteId],
+        );
         const invite = await client.query<{
           owner_user_id: number;
           token: string;

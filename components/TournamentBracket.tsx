@@ -19,12 +19,15 @@ import {
   selectWinner,
 } from '@/lib/tournament';
 import { DuelHistoryEntry, Gender, TournamentMode } from '@/types';
+import AdSlot from '@/components/AdSlot';
+import { captureAnalytics } from '@/lib/analytics-client';
 
 interface TournamentBracketProps {
   initialNames: string[];
   gender: Gender;
   tournamentId: string;
   mode: TournamentMode;
+  invited?: boolean;
 }
 
 export default function TournamentBracket({
@@ -32,6 +35,7 @@ export default function TournamentBracket({
   gender,
   tournamentId,
   mode,
+  invited = false,
 }: TournamentBracketProps) {
   const router = useRouter();
   const { t } = useI18n();
@@ -84,7 +88,19 @@ export default function TournamentBracket({
       setTournament(completedState);
       if (finalWinner) {
         setWinner(finalWinner);
+        captureAnalytics('duel_finished', {
+          gender,
+          mode,
+          name_count: initialNames.length,
+          choice_count: history.length + 1,
+        });
+        if (invited) captureAnalytics('invitee_finished', { tournament_id: activeTournamentId });
         celebrate();
+      } else if (completedState.currentRound > tournament.currentRound) {
+        captureAnalytics('round_completed', {
+          round: tournament.currentRound,
+          remaining_names: completedState.remainingNames.length + completedState.selectedNames.length,
+        });
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : t('common.error'));
@@ -152,6 +168,7 @@ export default function TournamentBracket({
             {t('winner.summary', { count: history.length })}
           </p>
           {error && <p role="alert" className="mt-3 text-sm text-red-800">{error}</p>}
+          <AdSlot placement="before-result" />
           <WinnerActions winner={winner} tournamentId={activeTournamentId} />
           <div className="mt-4 grid grid-cols-2 justify-center gap-2 sm:mt-8 sm:flex sm:gap-3">
             <Button onClick={restart} disabled={isSaving} variant="outline" size="lg" className="h-12 whitespace-normal rounded-xl bg-white">
@@ -208,6 +225,9 @@ export default function TournamentBracket({
       </div>
 
       {error && <p role="alert" className="mb-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-900">{error}</p>}
+      {tournament.currentRound > 1 && roundProgress.current === 1 && (
+        <AdSlot placement="between-rounds" />
+      )}
 
       <div className={`grid min-h-0 flex-1 gap-2 sm:gap-4 ${pair.length === 3 ? 'grid-rows-3 md:grid-cols-3 md:grid-rows-1' : 'grid-cols-2'}`}>
         {pair.map((name, index) => (
