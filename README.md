@@ -1,11 +1,12 @@
 # LeBabyName
 
-LeBabyName is a private, multi-user baby-name tournament. Sign in with Google, start from the official French 2025 rankings or enter a shortlist, then choose between two or three names at a time until one favorite remains.
+LeBabyName is a private, multi-user baby-name tournament in six locales. Sign in with Google, start from an official country ranking or enter a shortlist, then choose between two or three names at a time until one favorite remains.
 
 ## Features
 
 - Google sign-in with private per-user data
-- Official 2025 French default dataset: INSEE ranks 1–50 by sex (100 names total)
+- Browser locale detection plus French, UK/US English, Spanish, Portuguese, and Italian
+- Switchable official country datasets with 50 ranked names per sex
 - Custom name lists with persistent additions and removals
 - Persisted tournament votes, rollback, winners, and private result history
 - Shareable Story and square result images with native mobile sharing and social fallbacks
@@ -16,7 +17,18 @@ LeBabyName is a private, multi-user baby-name tournament. Sign in with Google, s
 
 ## Official name data
 
-The default dataset comes directly from the [INSEE national first-name file](https://www.insee.fr/fr/statistiques/8595130), released July 16, 2026 and covering births registered in France in 2025. The app uses the official national `rang` values 1–50 for each sex. Counts in the source are rounded by INSEE; ranking is calculated from unrounded values.
+Each seed stores its country, coverage year, source, URL, and version in PostgreSQL. The app uses ranks 1–50 per sex (100 names per country):
+
+| Country | Coverage | Official source |
+| --- | --- | --- |
+| France | 2025 | [INSEE, Fichier des prénoms](https://www.insee.fr/fr/statistiques/8595130) |
+| England & Wales | 2025 | [ONS, Baby names 2025](https://www.ons.gov.uk/releases/babynamesinenglandandwales2025) |
+| United States | 2025 | [SSA, Popular Baby Names](https://www.ssa.gov/oact/babynames/) |
+| Spain | 2024 | [INE, nombres de recién nacidos](https://www.ine.es/uc/vPHgh7bV) — latest official year available |
+| Portugal | 2025 + 2016 | Owner-approved composite: [IRN provisional 2025 top 10](https://rr.pt/especial/pais/2025/12/22/veja-a-lista-dos-nomes-de-bebes-mais-escolhidos-em-portugal-em-2025/452688/) first, then the [archived IRN-derived 2016 ranking](https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf), deduplicated case/accent-insensitively |
+| Italy | 2025 | [ISTAT, Conta nomi](https://www.istat.it/dati/calcolatori/contanomi/) |
+
+The tracked seed file is `data/name-datasets.json`; `scripts/seed-names.mjs` idempotently upserts it at container startup.
 
 ## Local development
 
@@ -28,6 +40,7 @@ cp .env.example .env
 docker compose up -d db
 npm ci
 node scripts/migrate.mjs
+node scripts/seed-names.mjs
 npm run dev
 ```
 

@@ -8,12 +8,14 @@ import NameListInput from '@/components/NameListInput';
 import TournamentBracket from '@/components/TournamentBracket';
 import { Button } from '@/components/ui/button';
 import { Gender, TournamentMode } from '@/types';
+import { useI18n } from '@/components/LocaleProvider';
 
 type TournamentPhase = 'mode-selection' | 'name-input' | 'tournament' | 'loading';
 
 function TournamentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { t } = useI18n();
     const genderParam = searchParams.get('gender');
     const inviteToken = searchParams.get('invite');
     const [gender, setGender] = useState<Gender>(genderParam === 'girl' ? 'girl' : 'boy');
@@ -31,7 +33,7 @@ function TournamentContent() {
             fetch(`/api/invites/${inviteToken}/accept`, { method: 'POST' })
                 .then(async (response) => {
                     const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Invitation invalide.');
+                    if (!response.ok) throw new Error(t('tournament.empty'));
                     setGender(data.gender);
                     setNames(data.names);
                     setTournamentId(data.id);
@@ -39,7 +41,7 @@ function TournamentContent() {
                     setPhase('tournament');
                 })
                 .catch((error: unknown) => {
-                    setError(error instanceof Error ? error.message : 'Impossible d’ouvrir cette invitation.');
+                    setError(error instanceof Error ? error.message : t('tournament.empty'));
                     setPhase('mode-selection');
                 });
             return;
@@ -47,7 +49,7 @@ function TournamentContent() {
         if (genderParam !== 'boy' && genderParam !== 'girl') {
             router.replace('/');
         }
-    }, [genderParam, inviteToken, router]);
+    }, [genderParam, inviteToken, router, t]);
 
     const handleModeSelect = (selectedMode: TournamentMode | 'manage') => {
         setError(null);
@@ -73,7 +75,7 @@ function TournamentContent() {
         });
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.error || 'Impossible de créer le tournoi.');
+            throw new Error(t('common.error'));
         }
         setTournamentId(data.id);
         setTournamentMode(mode);
@@ -86,18 +88,18 @@ function TournamentContent() {
         setError(null);
         try {
             const response = await fetch(`/api/names?gender=${gender}`);
-            if (!response.ok) throw new Error('Impossible de lire les prénoms enregistrés.');
+            if (!response.ok) throw new Error(t('manage.empty'));
             const data = await response.json();
 
             if (data.names && data.names.length > 0) {
                 const nameList = data.names.map((n: { name: string }) => n.name);
                 await startTournament(nameList, 'database');
             } else {
-                throw new Error('Aucun prénom n’est disponible. Ajoutez-en depuis la page de gestion.');
+                throw new Error(t('manage.empty'));
             }
         } catch (error) {
             console.error('Error loading names:', error);
-            setError(error instanceof Error ? error.message : 'Le chargement a échoué.');
+            setError(error instanceof Error ? error.message : t('common.loading'));
             setPhase('mode-selection');
         }
     };
@@ -116,14 +118,14 @@ function TournamentContent() {
                     ),
                 );
                 if (responses.some((response) => !response.ok)) {
-                    throw new Error('Certains prénoms n’ont pas pu être enregistrés. Réessayez.');
+                    throw new Error(t('common.loading'));
                 }
             }
 
             await startTournament(customNames, 'custom');
         } catch (error) {
             console.error('Error processing names:', error);
-            setError(error instanceof Error ? error.message : 'La préparation du tournoi a échoué.');
+            setError(error instanceof Error ? error.message : t('names.processing'));
         }
     };
 
@@ -145,7 +147,7 @@ function TournamentContent() {
             <div className="flex min-h-dvh items-center justify-center bg-[#f7f1e8]">
                 <div className="text-center space-y-4">
                     <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
-                    <p className="text-lg text-stone-700">Préparation de votre tournoi…</p>
+                    <p className="text-lg text-stone-700">{t('tournament.preparing')}</p>
                 </div>
             </div>
         );
@@ -162,16 +164,16 @@ function TournamentContent() {
                 {phase === 'mode-selection' && (
                     <div className="flex min-h-[calc(100dvh-1.5rem)] flex-col items-center justify-center gap-2 sm:min-h-[calc(100dvh-3rem)] sm:gap-4">
                         <Button onClick={handleBack} variant="ghost" className="h-10 self-start">
-                            <ArrowLeft aria-hidden="true" /> Retour
+                            <ArrowLeft aria-hidden="true" /> {t('common.back')}
                         </Button>
-                        <ModeSelection onModeSelect={handleModeSelect} gender={gender} />
+                        <ModeSelection onModeSelect={handleModeSelect} />
                     </div>
                 )}
 
                 {phase === 'name-input' && (
                     <div className="flex min-h-[calc(100dvh-1.5rem)] flex-col items-center justify-center gap-2 sm:min-h-[calc(100dvh-3rem)] sm:gap-4">
                         <Button onClick={handleBack} variant="ghost" className="h-10 self-start">
-                            <ArrowLeft aria-hidden="true" /> Retour
+                            <ArrowLeft aria-hidden="true" /> {t('common.back')}
                         </Button>
                         <NameListInput onConfirm={handleCustomNamesConfirm} gender={gender} />
                     </div>
@@ -191,7 +193,7 @@ export default function TournamentPage() {
             <div className="flex min-h-dvh items-center justify-center bg-[#f7f1e8]">
                 <div className="space-y-4 text-center">
                     <RefreshCw aria-hidden="true" className="mx-auto size-8 animate-spin text-rose-700" />
-                    <p className="text-lg text-stone-700">Chargement…</p>
+                    <p className="text-lg text-stone-700">LeBabyName</p>
                 </div>
             </div>
         }>

@@ -6,11 +6,13 @@ import { ArrowLeft, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Gender, Name } from '@/types';
+import { useI18n } from '@/components/LocaleProvider';
 
 type Notice = { tone: 'success' | 'error'; message: string } | null;
 
 export default function ManagePage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [activeGender, setActiveGender] = useState<Gender>('girl');
   const [names, setNames] = useState<Record<Gender, Name[]>>({ girl: [], boy: [] });
   const [newName, setNewName] = useState('');
@@ -34,13 +36,13 @@ export default function ManagePage() {
       })
       .catch((error: unknown) => {
         if (error instanceof Error && error.name === 'AbortError') return;
-        setNotice({ tone: 'error', message: 'Impossible de charger les prénoms. Vérifiez la connexion puis réessayez.' });
+        setNotice({ tone: 'error', message: t('manage.retry') });
       })
       .finally(() => {
         if (!controller.signal.aborted) setIsLoading(false);
       });
     return () => controller.abort();
-  }, []);
+  }, [t]);
 
   const filteredNames = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('fr');
@@ -61,19 +63,19 @@ export default function ManagePage() {
         body: JSON.stringify({ name: newName, gender: activeGender }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Le prénom n’a pas pu être ajouté.');
+      if (!response.ok) throw new Error(t('common.error'));
       if (data.created) {
         setNames((current) => ({
           ...current,
           [activeGender]: [...current[activeGender], data.name],
         }));
         setNewName('');
-        setNotice({ tone: 'success', message: `${data.name.name} a été ajouté à la sélection.` });
+        setNotice({ tone: 'success', message: t('manage.saved', { name: data.name.name }) });
       } else {
-        setNotice({ tone: 'error', message: `${data.name.name} figure déjà dans cette sélection.` });
+        setNotice({ tone: 'error', message: t('manage.exists', { name: data.name.name }) });
       }
     } catch (error) {
-      setNotice({ tone: 'error', message: error instanceof Error ? error.message : 'L’ajout a échoué.' });
+      setNotice({ tone: 'error', message: error instanceof Error ? error.message : t('common.error') });
     } finally {
       setIsSaving(false);
     }
@@ -85,17 +87,16 @@ export default function ManagePage() {
     try {
       const response = await fetch(`/api/names/${name.id}?gender=${activeGender}`, { method: 'DELETE' });
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'La suppression a échoué.');
+        throw new Error(t('common.error'));
       }
       setNames((current) => ({
         ...current,
         [activeGender]: current[activeGender].filter((item) => item.id !== name.id),
       }));
       setPendingDeleteId(null);
-      setNotice({ tone: 'success', message: `${name.name} a été retiré de la sélection.` });
+      setNotice({ tone: 'success', message: t('manage.removed', { name: name.name }) });
     } catch (error) {
-      setNotice({ tone: 'error', message: error instanceof Error ? error.message : 'La suppression a échoué.' });
+      setNotice({ tone: 'error', message: error instanceof Error ? error.message : t('common.error') });
     } finally {
       setDeletingId(null);
     }
@@ -105,19 +106,19 @@ export default function ManagePage() {
     <main className="min-h-dvh bg-[#f7f1e8] px-3 py-3 text-stone-900 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl">
         <Button onClick={() => router.back()} variant="ghost" className="-ml-3 text-stone-600">
-          <ArrowLeft aria-hidden="true" /> Retour
+          <ArrowLeft aria-hidden="true" /> {t('common.back')}
         </Button>
 
         <header className="mt-3 max-w-2xl sm:mt-8">
-          <h1 className="font-serif text-4xl tracking-[-0.04em] sm:text-6xl">Votre sélection</h1>
+          <h1 className="font-serif text-4xl tracking-[-0.04em] sm:text-6xl">{t('manage.title')}</h1>
           <p className="mt-2 text-sm leading-6 text-stone-600 sm:mt-4 sm:text-lg sm:leading-8">
-            Ajoutez les prénoms qui comptent pour vous. Ils seront disponibles dans le prochain tournoi.
+            {t('manage.subtitle')}
           </p>
         </header>
 
         <div className="mt-4 grid gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-[19rem_1fr]">
           <aside className="h-fit rounded-2xl border border-white/80 bg-white/80 p-4 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-5">
-            <div className="grid grid-cols-2 gap-2" role="tablist" aria-label="Type de prénoms">
+            <div className="grid grid-cols-2 gap-2" role="tablist" aria-label={t('names.label')}>
               {(['girl', 'boy'] as const).map((gender) => (
                 <Button
                   key={gender}
@@ -132,42 +133,42 @@ export default function ManagePage() {
                   }}
                   className={activeGender === gender ? 'bg-stone-900 text-white hover:bg-stone-800' : ''}
                 >
-                  {gender === 'girl' ? 'Filles' : 'Garçons'}
+                  {gender === 'girl' ? t('common.girls') : t('common.boys')}
                   <span className="tabular-nums opacity-70">{names[gender].length}</span>
                 </Button>
               ))}
             </div>
 
             <form onSubmit={addName} className="mt-3 grid grid-cols-[1fr_auto] gap-2 sm:mt-6 sm:block sm:space-y-3">
-              <label htmlFor="new-name" className="text-sm font-semibold">Ajouter un prénom</label>
+              <label htmlFor="new-name" className="text-sm font-semibold">{t('manage.add')}</label>
               <Input
                 id="new-name"
                 value={newName}
                 onChange={(event) => setNewName(event.target.value)}
-                placeholder="Ex. Charlie"
+                placeholder={t('names.placeholder')}
                 maxLength={60}
                 disabled={isSaving}
                 className="col-start-1 h-11 bg-white text-base"
               />
               <Button type="submit" disabled={isSaving || !newName.trim()} className="col-start-2 row-start-2 h-11 bg-rose-700 px-4 text-white hover:bg-rose-800 sm:w-full">
                 {isSaving ? <RefreshCw aria-hidden="true" className="animate-spin" /> : <Plus aria-hidden="true" />}
-                <span className="hidden sm:inline">{isSaving ? 'Ajout…' : 'Ajouter'}</span>
+                <span className="hidden sm:inline">{isSaving ? t('common.loading') : t('manage.addAction')}</span>
               </Button>
             </form>
           </aside>
 
-          <section aria-label={`Prénoms de ${activeGender === 'girl' ? 'filles' : 'garçons'}`} className="min-w-0 rounded-2xl border border-white/80 bg-white/80 p-4 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-7">
+          <section aria-label={activeGender === 'girl' ? t('home.girlNames') : t('home.boyNames')} className="min-w-0 rounded-2xl border border-white/80 bg-white/80 p-4 shadow-[0_20px_60px_-40px_rgba(77,48,38,0.6)] sm:p-7">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-serif text-3xl tracking-[-0.03em]">
-                Prénoms de {activeGender === 'girl' ? 'filles' : 'garçons'}
+                {activeGender === 'girl' ? t('home.girlNames') : t('home.boyNames')}
               </h2>
               <label className="relative block">
-                <span className="sr-only">Rechercher un prénom</span>
+                <span className="sr-only">{t('manage.search')}</span>
                 <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-stone-500" />
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Rechercher"
+                  placeholder={t('manage.search')}
                   className="h-10 bg-white pl-9 text-base sm:w-56"
                 />
               </label>
@@ -184,12 +185,12 @@ export default function ManagePage() {
 
             {isLoading ? (
               <div className="flex min-h-64 items-center justify-center text-stone-600">
-                <RefreshCw aria-hidden="true" className="mr-2 animate-spin" /> Chargement des prénoms…
+                <RefreshCw aria-hidden="true" className="mr-2 animate-spin" /> {t('manage.loading')}
               </div>
             ) : filteredNames.length === 0 ? (
               <div className="flex min-h-64 flex-col items-center justify-center text-center">
-                <p className="font-semibold text-stone-800">{query ? 'Aucun prénom ne correspond.' : 'La sélection est vide.'}</p>
-                <p className="mt-1 text-sm text-stone-600">{query ? 'Essayez une autre recherche.' : 'Ajoutez votre premier prénom depuis le formulaire.'}</p>
+                <p className="font-semibold text-stone-800">{query ? t('manage.noMatch') : t('manage.empty')}</p>
+                <p className="mt-1 text-sm text-stone-600">{query ? t('manage.retry') : t('manage.emptyHint')}</p>
               </div>
             ) : (
               <ul className="mt-6 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -198,9 +199,9 @@ export default function ManagePage() {
                     <span className="min-w-0 truncate font-medium" title={name.name}>{name.name}</span>
                     {pendingDeleteId === name.id ? (
                       <span className="flex shrink-0 items-center gap-1">
-                        <Button type="button" variant="ghost" size="sm" onClick={() => setPendingDeleteId(null)}>Annuler</Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setPendingDeleteId(null)}>{t('common.cancel')}</Button>
                         <Button type="button" variant="destructive" size="sm" onClick={() => deleteName(name)} disabled={deletingId === name.id}>
-                          {deletingId === name.id ? <RefreshCw aria-hidden="true" className="animate-spin" /> : 'Confirmer'}
+                          {deletingId === name.id ? <RefreshCw aria-hidden="true" className="animate-spin" /> : t('common.confirm')}
                         </Button>
                       </span>
                     ) : (
@@ -209,7 +210,7 @@ export default function ManagePage() {
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => setPendingDeleteId(name.id)}
-                        aria-label={`Supprimer ${name.name}`}
+                        aria-label={t('manage.delete', { name: name.name })}
                         className="text-stone-400 hover:bg-red-50 hover:text-red-700"
                       >
                         <Trash2 aria-hidden="true" />

@@ -6,6 +6,8 @@ import { getInviteMetadata } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
 import SignInScreen from '@/components/SignInScreen';
 import { Button } from '@/components/ui/button';
+import { getRequestLocale } from '@/lib/locale-server';
+import { translate } from '@/lib/i18n';
 
 export default async function InvitePage({
   params,
@@ -17,14 +19,17 @@ export default async function InvitePage({
   const invite = await getInviteMetadata(token);
   if (!invite) notFound();
   const session = await auth();
+  const locale = await getRequestLocale();
+  const t = (key: Parameters<typeof translate>[1], values?: Record<string, string | number>) =>
+    translate(locale, key, values);
   const callbackUrl = `/invite/${token}`;
 
   if (!session?.user) {
     return (
       <SignInScreen
         callbackUrl={callbackUrl}
-        title="On vous invite à choisir."
-        description={`Connectez-vous pour départager la même liste de ${invite.nameCount} prénoms. Votre résultat restera privé entre vous et la personne qui vous invite.`}
+        title={t('invite.signInTitle')}
+        description={t('invite.signInDescription')}
       />
     );
   }
@@ -36,13 +41,13 @@ export default async function InvitePage({
           <Users aria-hidden="true" />
         </div>
         <p className="mt-3 font-serif text-lg font-semibold tracking-[-0.03em]">LeBabyName</p>
-        <h1 className="mt-2 font-serif text-4xl tracking-[-0.04em]">À vous de choisir.</h1>
+        <h1 className="mt-2 font-serif text-4xl tracking-[-0.04em]">{t('invite.title')}</h1>
         <p className="mt-3 text-sm leading-6 text-stone-600">
-          Parcourez la même liste de {invite.nameCount} prénoms de {invite.gender === 'girl' ? 'fille' : 'garçon'} et découvrez si vos favoris correspondent.
+          {t('invite.description', { count: invite.nameCount })}
         </p>
         <Button asChild className="mt-7 h-12 w-full rounded-xl bg-stone-900 text-base text-white hover:bg-stone-800">
           <Link href={`/tournament?invite=${token}`}>
-            Commencer le tournoi <ArrowRight aria-hidden="true" />
+            {t('invite.start')} <ArrowRight aria-hidden="true" />
           </Link>
         </Button>
       </section>

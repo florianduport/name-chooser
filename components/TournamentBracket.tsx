@@ -7,6 +7,7 @@ import confetti from 'canvas-confetti';
 import { ArrowLeft, Check, Crown, RotateCcw, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WinnerActions from '@/components/WinnerActions';
+import { useI18n } from '@/components/LocaleProvider';
 import {
   createTournament,
   getCurrentPair,
@@ -33,6 +34,7 @@ export default function TournamentBracket({
   mode,
 }: TournamentBracketProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const [tournament, setTournament] = useState(() => createTournament(initialNames));
   const [activeTournamentId, setActiveTournamentId] = useState(tournamentId);
   const [history, setHistory] = useState<DuelHistoryEntry[]>([]);
@@ -77,7 +79,7 @@ export default function TournamentBracket({
           finalWinner: finalWinner ?? undefined,
         }),
       });
-      if (!response.ok) throw new Error('Votre choix n’a pas pu être enregistré.');
+      if (!response.ok) throw new Error(t('common.error'));
       setHistory((current) => [...current, entry]);
       setTournament(completedState);
       if (finalWinner) {
@@ -85,7 +87,7 @@ export default function TournamentBracket({
         celebrate();
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'L’enregistrement a échoué.');
+      setError(error instanceof Error ? error.message : t('common.error'));
     } finally {
       setIsSaving(false);
     }
@@ -101,12 +103,12 @@ export default function TournamentBracket({
         `/api/tournaments/${activeTournamentId}/votes?fromSequence=${index}`,
         { method: 'DELETE' },
       );
-      if (!response.ok) throw new Error('Impossible de revenir à ce choix.');
+      if (!response.ok) throw new Error(t('common.error'));
       setTournament(structuredClone(entry.tournamentStateBeforeDuel));
       setHistory((current) => current.slice(0, index));
       setWinner(null);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Le retour a échoué.');
+      setError(error instanceof Error ? error.message : t('common.error'));
     } finally {
       setIsSaving(false);
     }
@@ -122,13 +124,13 @@ export default function TournamentBracket({
         body: JSON.stringify({ names: initialNames, gender, mode }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Impossible de relancer le tournoi.');
+      if (!response.ok) throw new Error(t('common.error'));
       setActiveTournamentId(data.id);
       setTournament(createTournament(initialNames));
       setHistory([]);
       setWinner(null);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'La relance a échoué.');
+      setError(error instanceof Error ? error.message : t('common.error'));
     } finally {
       setIsSaving(false);
     }
@@ -144,19 +146,19 @@ export default function TournamentBracket({
           className="w-full max-w-2xl text-center"
         >
           <Crown aria-hidden="true" className="mx-auto size-10 text-amber-600 sm:size-12" strokeWidth={1.5} />
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500 sm:mt-6 sm:text-sm">Votre prénom favori</p>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500 sm:mt-6 sm:text-sm">{t('winner.label')}</p>
           <h1 className="mt-2 break-words font-serif text-5xl tracking-[-0.04em] text-stone-950 sm:mt-3 sm:text-8xl">{winner}</h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-600 sm:mt-5 sm:text-lg sm:leading-8">
-            Après {history.length} choix, ce prénom arrive en tête de votre sélection.
+            {t('winner.summary', { count: history.length })}
           </p>
           {error && <p role="alert" className="mt-3 text-sm text-red-800">{error}</p>}
           <WinnerActions winner={winner} tournamentId={activeTournamentId} />
           <div className="mt-4 grid grid-cols-2 justify-center gap-2 sm:mt-8 sm:flex sm:gap-3">
             <Button onClick={restart} disabled={isSaving} variant="outline" size="lg" className="h-12 whitespace-normal rounded-xl bg-white">
-              <RotateCcw aria-hidden="true" /> Rejouer
+              <RotateCcw aria-hidden="true" /> {t('winner.replay')}
             </Button>
             <Button onClick={() => router.push('/')} size="lg" className="h-12 whitespace-normal rounded-xl bg-stone-900 text-white hover:bg-stone-800">
-              Autre liste
+              {t('winner.other')}
             </Button>
           </div>
         </motion.div>
@@ -168,7 +170,7 @@ export default function TournamentBracket({
   if (!pair) {
     return (
       <div role="alert" className="mx-auto mt-20 max-w-lg rounded-xl border border-red-200 bg-red-50 p-5 text-red-900">
-        Le tournoi ne peut pas continuer avec cette liste. Revenez à l&apos;accueil et ajoutez au moins deux prénoms différents.
+        {t('tournament.empty')}
       </div>
     );
   }
@@ -181,13 +183,13 @@ export default function TournamentBracket({
     <section className="mx-auto flex h-[calc(100dvh-1.5rem)] min-h-[32rem] w-full max-w-6xl flex-col overflow-y-auto py-0 sm:h-auto sm:min-h-[calc(100dvh-3rem)] sm:justify-center sm:py-6">
       <div className="mb-3 flex items-end justify-between gap-3 sm:mb-8 sm:gap-5">
         <div className="min-w-0">
-          <Button onClick={() => router.push('/')} variant="ghost" size="icon-lg" aria-label="Quitter le tournoi" className="-ml-3 mb-1 text-stone-600 sm:mb-5 sm:w-auto sm:px-4">
-            <ArrowLeft aria-hidden="true" /> <span className="hidden sm:inline">Quitter le tournoi</span>
+          <Button onClick={() => router.push('/')} variant="ghost" size="icon-lg" aria-label={t('tournament.quit')} className="-ml-3 mb-1 text-stone-600 sm:mb-5 sm:w-auto sm:px-4">
+            <ArrowLeft aria-hidden="true" /> <span className="hidden sm:inline">{t('tournament.quit')}</span>
           </Button>
-          <h1 className="truncate font-serif text-2xl tracking-[-0.03em] sm:text-5xl">Lequel préférez-vous ?</h1>
+          <h1 className="truncate font-serif text-2xl tracking-[-0.03em] sm:text-5xl">{t('tournament.question')}</h1>
           <p className="mt-1 text-xs text-stone-600 sm:mt-2 sm:text-base">
-            Manche {tournament.currentRound} · duel {roundProgress.current}/{roundProgress.total}
-            <span className="text-stone-400"> · choix {overallCurrent}/{overallTotal}</span>
+            {t('tournament.progress', { round: tournament.currentRound, current: roundProgress.current, total: roundProgress.total })}
+            <span className="text-stone-400"> · {t('tournament.overall', { current: overallCurrent, total: overallTotal })}</span>
           </p>
         </div>
         <div
@@ -226,7 +228,7 @@ export default function TournamentBracket({
                 <Check aria-hidden="true" className="size-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:size-5" />
               </span>
               <span className="block break-words font-serif text-2xl tracking-[-0.03em] text-stone-950 sm:mt-16 sm:text-5xl">{name}</span>
-              <span className="block text-xs text-stone-500 sm:mt-3 sm:text-sm">Choisir</span>
+              <span className="block text-xs text-stone-500 sm:mt-3 sm:text-sm">{t('tournament.select')}</span>
             </button>
           </motion.div>
         ))}
@@ -246,20 +248,25 @@ function History({
   onRollback: (index: number) => Promise<void>;
   disabled: boolean;
 }) {
+  const { t } = useI18n();
   if (entries.length === 0) return null;
   return (
     <details className="mt-2 w-full shrink-0 rounded-xl border border-stone-200 bg-white/60 p-3 sm:mt-10 sm:rounded-2xl sm:p-4">
       <summary className="cursor-pointer text-sm font-semibold text-stone-700 sm:text-base">
-        Historique des choix ({entries.length})
+        {t('tournament.history', { count: entries.length })}
       </summary>
       <ol className="mt-4 grid gap-2">
         {entries.map((entry, index) => (
           <li key={`${entry.round}-${index}`} className="flex flex-col gap-3 rounded-xl bg-white px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span className="min-w-0 break-words text-stone-700">
-              Manche {entry.round} · <strong className="text-stone-950">{entry.winner}</strong> préféré à {entry.losers.join(' et ')}
+              {t('tournament.historyEntry', {
+                round: entry.round,
+                winner: entry.winner,
+                losers: entry.losers.join(', '),
+              })}
             </span>
             <Button disabled={disabled} variant="ghost" size="sm" onClick={() => onRollback(index)} className="self-start text-stone-600 sm:self-auto">
-              <Undo2 aria-hidden="true" /> Revenir ici
+              <Undo2 aria-hidden="true" /> {t('tournament.rollback')}
             </Button>
           </li>
         ))}

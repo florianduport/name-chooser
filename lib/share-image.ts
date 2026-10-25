@@ -1,3 +1,5 @@
+import { translate, type Locale } from './i18n';
+
 export type ShareImageFormat = 'story' | 'square';
 
 export const SHARE_IMAGE_DIMENSIONS: Record<ShareImageFormat, readonly [number, number]> = {
@@ -8,6 +10,7 @@ export const SHARE_IMAGE_DIMENSIONS: Record<ShareImageFormat, readonly [number, 
 export async function createResultImage(
   winner: string,
   format: ShareImageFormat,
+  locale: Locale = 'fr',
 ): Promise<File> {
   const [width, height] = SHARE_IMAGE_DIMENSIONS[format];
   const canvas = document.createElement('canvas');
@@ -50,7 +53,7 @@ export async function createResultImage(
   context.fillStyle = '#78716c';
   context.font = '600 30px Arial, sans-serif';
   context.letterSpacing = '6px';
-  context.fillText('MON PRÉNOM FAVORI', width / 2, cardY + 245);
+  context.fillText(translate(locale, 'image.label'), width / 2, cardY + 245);
   context.letterSpacing = '0px';
 
   context.fillStyle = '#1c1917';
@@ -60,7 +63,7 @@ export async function createResultImage(
 
   context.fillStyle = '#57534e';
   context.font = '400 34px Arial, sans-serif';
-  context.fillText('Un tournoi, un favori.', width / 2, cardY + cardHeight - 190);
+  context.fillText(translate(locale, 'image.tagline'), width / 2, cardY + cardHeight - 190);
 
   context.fillStyle = '#1c1917';
   context.font = '600 30px Arial, sans-serif';

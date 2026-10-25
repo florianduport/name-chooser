@@ -47,8 +47,9 @@ Deploy from Coolify. The app container:
 
 1. waits for PostgreSQL to pass `pg_isready`;
 2. runs the idempotent SQL migration in `scripts/migrate.mjs`;
-3. starts the standalone Next.js server;
-4. becomes healthy after `/api/health` confirms database connectivity.
+3. upserts the versioned official country datasets with `scripts/seed-names.mjs`;
+4. starts the standalone Next.js server;
+5. becomes healthy after `/api/health` confirms database connectivity.
 
 `SERVICE_URL_APP_3000` and `SERVICE_FQDN_APP_3000` tell Coolify to route the generated or assigned domain to internal port 3000. There is intentionally no host `ports:` mapping.
 
@@ -56,7 +57,7 @@ Deploy from Coolify. The app container:
 
 The `postgres-data` named volume contains all application and Auth.js data. Coolify redeployments and container recreation preserve it. Do not remove the storage or run `docker compose down --volumes` unless all users, lists, votes, and results should be permanently erased.
 
-The previous JSON datastore is no longer used. Every Google account receives a private copy of the official INSEE 2025 top 50 names per sex on first use.
+The previous user JSON datastore is no longer used. Official country seeds are stored in PostgreSQL with source and coverage-year metadata. On first use, every account receives the dataset matching its browser locale and can switch countries later.
 
 ## Backup and restore
 
