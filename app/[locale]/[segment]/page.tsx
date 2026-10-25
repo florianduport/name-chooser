@@ -11,6 +11,7 @@ import {
   SITE_URL,
 } from '@/lib/seo';
 import { SUPPORTED_LOCALES, type Locale } from '@/lib/i18n';
+import LegalFooter from '@/components/LegalFooter';
 
 type Props = { params: Promise<{ locale: string; segment: string }> };
 
@@ -146,6 +147,7 @@ export default async function PublicListPage({ params }: Props) {
           </ul>
         </nav>
       </article>
+      <LegalFooter locale={locale} />
     </main>
   );
 }

@@ -5,6 +5,7 @@ import { ArrowRight, Heart, MapPin, Sparkles } from 'lucide-react';
 import AffiliateBlock from '@/components/AffiliateBlock';
 import { EventTracker } from '@/components/EventTracker';
 import AdSlot from '@/components/AdSlot';
+import LegalFooter from '@/components/LegalFooter';
 import {
   getAllNames,
   getPublicName,
@@ -183,6 +184,7 @@ export default async function NamePage({ params }: Props) {
           </ul>
         </nav>
       </article>
+      <LegalFooter locale={locale} />
     </main>
   );
 }

@@ -11,6 +11,7 @@ import {
   type LegalPageKey,
 } from '@/lib/legal';
 import { isLocale, SITE_URL } from '@/lib/seo';
+import LegalFooter from '@/components/LegalFooter';
 
 type Props = { params: Promise<{ locale: string; page: string }> };
 
@@ -97,6 +98,7 @@ export default async function LegalPage({ params }: Props) {
           </ul>
         </nav>
       </article>
+      <LegalFooter locale={locale} />
     </main>
   );
 }
