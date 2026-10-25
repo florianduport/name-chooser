@@ -194,7 +194,7 @@ export default function WinnerActions({
 
   const nativeInviteShare = () => run(async () => {
     const value = await getInvite();
-    const channel = navigator.share ? 'native' : 'copy_link';
+    let channel = 'copy_link';
     const data = {
       title: t('invite.nativeTitle'),
       text: t('invite.nativeText'),
@@ -202,6 +202,7 @@ export default function WinnerActions({
     };
     if (navigator.share) {
       await navigator.share(data);
+      channel = 'native';
       captureAnalytics('invite_sent', { channel: 'native' });
     } else {
       await navigator.clipboard.writeText(value.url);

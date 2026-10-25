@@ -5,7 +5,7 @@ import {
   SUPPORTED_LOCALES,
   type CountryCode,
   type Locale,
-} from '@/lib/i18n';
+} from './i18n';
 
 type Gender = 'boy' | 'girl';
 type Dataset = {
