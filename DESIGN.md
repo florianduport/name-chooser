@@ -147,7 +147,7 @@ The palette combines warm cream and stone neutrals with restrained rose and sky 
 
 ## Typography
 
-**Display Font:** Fraunces (with Georgia and serif fallbacks)  
+**Display Font:** Fraunces (with Georgia and serif fallbacks)
 **Body Font:** Geist (with Arial and sans-serif fallbacks)
 
 **Character:** Fraunces gives names and decisions warmth and ceremony. Geist keeps instructions, metadata, navigation, and consent language direct and compact.
