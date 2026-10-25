@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T14:00:00Z",
+  "title": "Design System: LeBabyName",
+  "extensions": {
+    "colorMeta": {
+      "cream-canvas": {
+        "role": "neutral",
+        "displayName": "Cream Canvas",
+        "canonical": "#f7f1e8",
+        "tonalRamp": ["#30281f", "#594b3c", "#806f5b", "#a6967f", "#c8baa5", "#e0d5c4", "#f0e8dc", "#fbf7f1"]
+      },
+      "warm-paper": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "canonical": "#fffaf2",
+        "tonalRamp": ["#33291d", "#5d4d38", "#877257", "#ae997b", "#cfbda3", "#e7dac5", "#f6ecdc", "#fffaf2"]
+      },
+      "white-surface": {
+        "role": "neutral",
+        "displayName": "White Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#262626", "#4a4a4a", "#707070", "#969696", "#bababa", "#d9d9d9", "#eeeeee", "#ffffff"]
+      },
+      "stone-ink": {
+        "role": "neutral",
+        "displayName": "Stone Ink",
+        "canonical": "#1c1917",
+        "tonalRamp": ["#1c1917", "#3c3733", "#5d5752", "#807974", "#a29c97", "#c2bdb9", "#dfdcda", "#f7f6f5"]
+      },
+      "stone-body": {
+        "role": "neutral",
+        "displayName": "Stone Body",
+        "canonical": "#44403c",
+        "tonalRamp": ["#1d1a18", "#44403c", "#65605b", "#87817c", "#a8a29e", "#c8c4c1", "#e4e2e0", "#faf9f8"]
+      },
+      "stone-muted": {
+        "role": "neutral",
+        "displayName": "Stone Muted",
+        "canonical": "#57534e",
+        "tonalRamp": ["#201d1a", "#46413c", "#6b655f", "#8e8882", "#afa9a4", "#cecac6", "#e7e4e2", "#fbfaf9"]
+      },
+      "stone-subtle": {
+        "role": "neutral",
+        "displayName": "Stone Subtle",
+        "canonical": "#78716c",
+        "tonalRamp": ["#211e1c", "#4b4541", "#756e69", "#99938e", "#bab5b1", "#d5d1ce", "#ebe8e6", "#fcfbfa"]
+      },
+      "stone-border": {
+        "role": "neutral",
+        "displayName": "Stone Border",
+        "canonical": "#e7e5e4",
+        "tonalRamp": ["#25211f", "#504a46", "#7b746f", "#a39d98", "#c3bfbc", "#dbd8d6", "#e7e5e4", "#faf9f8"]
+      },
+      "rose-action": {
+        "role": "primary",
+        "displayName": "Rose Action",
+        "canonical": "#be123c",
+        "tonalRamp": ["#3a0714", "#641027", "#8e1637", "#be123c", "#dc4163", "#ee8097", "#f8bcc8", "#fff1f3"]
+      },
+      "rose-action-hover": {
+        "role": "primary",
+        "displayName": "Deep Rose Action",
+        "canonical": "#9f1239",
+        "tonalRamp": ["#350712", "#5a0d24", "#801131", "#9f1239", "#cb3b5c", "#e77d93", "#f5bac6", "#fff0f2"]
+      },
+      "rose-soft": {
+        "role": "secondary",
+        "displayName": "Rose Soft",
+        "canonical": "#ffe4e6",
+        "tonalRamp": ["#3a1117", "#6a2932", "#994553", "#c86675", "#e68e9a", "#f5b8c0", "#ffe4e6", "#fff5f6"]
+      },
+      "rose-soft-hover": {
+        "role": "secondary",
+        "displayName": "Rose Soft Hover",
+        "canonical": "#fecdd3",
+        "tonalRamp": ["#3a1017", "#692731", "#984351", "#c66271", "#e28996", "#f0adb7", "#fecdd3", "#fff1f3"]
+      },
+      "sky-soft": {
+        "role": "secondary",
+        "displayName": "Sky Soft",
+        "canonical": "#e0f2fe",
+        "tonalRamp": ["#102d3e", "#255268", "#437b94", "#68a5bf", "#91c7da", "#b9e0ed", "#e0f2fe", "#f3faff"]
+      },
+      "sky-soft-hover": {
+        "role": "secondary",
+        "displayName": "Sky Soft Hover",
+        "canonical": "#bae6fd",
+        "tonalRamp": ["#0d2c3e", "#205168", "#3d7893", "#60a0bd", "#86c0d7", "#a5d5e9", "#bae6fd", "#edf8ff"]
+      },
+      "night-footer": {
+        "role": "neutral",
+        "displayName": "Night Footer",
+        "canonical": "#0c0a09",
+        "tonalRamp": ["#0c0a09", "#312d2a", "#57514d", "#7e7772", "#a29c98", "#c4c0bd", "#e1dfdd", "#f8f7f6"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page heroes, winners, and the current name choice."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Major section and modal headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Cards, list names, and secondary headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Instructions, descriptions, and legal reading copy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, navigation, metadata, and compact controls."
+      }
+    },
+    "shadows": [
+      {
+        "name": "warm-ambient",
+        "value": "0 30px 90px -42px rgba(77, 48, 38, 0.5)",
+        "purpose": "Large hero and sign-in cards."
+      },
+      {
+        "name": "interactive-lift",
+        "value": "0 20px 60px -38px rgba(77, 48, 38, 0.7)",
+        "purpose": "Selectable tournament cards."
+      },
+      {
+        "name": "consent-float",
+        "value": "0 18px 55px -22px rgba(28, 25, 23, 0.45)",
+        "purpose": "The fixed consent notice."
+      },
+      {
+        "name": "mark-lift",
+        "value": "0 12px 30px -14px rgba(28, 25, 23, 0.8)",
+        "purpose": "The circular heart mark over the cream canvas."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-color",
+        "value": "150ms ease",
+        "purpose": "Compact control color changes."
+      },
+      {
+        "name": "choice-lift",
+        "value": "300ms ease",
+        "purpose": "Choice-card transform, shadow, and background response."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Global animation and transition duration under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Neutral high-contrast action for the primary path.",
+      "html": "<button class=\"ds-btn-primary\">Start a duel</button>",
+      "css": ".ds-btn-primary { min-height: 48px; border: 0; border-radius: 14px; background: #1c1917; color: #ffffff; padding: 12px 20px; font: 600 14px/1.25 Geist, Arial, sans-serif; cursor: pointer; transition: background-color 150ms ease; } .ds-btn-primary:hover { background: #292524; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(190,18,60,0.3); } .ds-btn-primary:active { background: #0c0a09; }"
+    },
+    {
+      "name": "Rose Choice",
+      "kind": "button",
+      "refersTo": "choice-rose",
+      "description": "Warm member of a paired, high-priority choice.",
+      "html": "<button class=\"ds-choice-rose\"><span class=\"ds-choice-icon\">♡</span><span><strong>Girl names</strong><small>Official list</small></span><span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-choice-rose { width: 100%; min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; border-radius: 18px; background: #ffe4e6; color: #4c0519; padding: 16px 20px; text-align: left; font-family: Geist, Arial, sans-serif; cursor: pointer; transition: background-color 150ms ease, transform 150ms ease; } .ds-choice-rose:hover { background: #fecdd3; transform: translateY(-1px); } .ds-choice-rose:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(190,18,60,0.3); } .ds-choice-rose:active { transform: translateY(0); } .ds-choice-rose strong, .ds-choice-rose small { display: block; } .ds-choice-rose small { margin-top: 2px; opacity: 0.7; } .ds-choice-icon { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 9999px; background: rgba(255,255,255,0.8); font-size: 22px; }"
+    },
+    {
+      "name": "Sky Choice",
+      "kind": "button",
+      "refersTo": "choice-sky",
+      "description": "Cool member of a paired, high-priority choice.",
+      "html": "<button class=\"ds-choice-sky\"><span class=\"ds-choice-icon\">♡</span><span><strong>Boy names</strong><small>Official list</small></span><span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-choice-sky { width: 100%; min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 0; border-radius: 18px; background: #e0f2fe; color: #082f49; padding: 16px 20px; text-align: left; font-family: Geist, Arial, sans-serif; cursor: pointer; transition: background-color 150ms ease, transform 150ms ease; } .ds-choice-sky:hover { background: #bae6fd; transform: translateY(-1px); } .ds-choice-sky:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(190,18,60,0.3); } .ds-choice-sky:active { transform: translateY(0); } .ds-choice-sky strong, .ds-choice-sky small { display: block; } .ds-choice-sky small { margin-top: 2px; opacity: 0.7; } .ds-choice-icon { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 9999px; background: rgba(255,255,255,0.8); font-size: 22px; }"
+    },
+    {
+      "name": "Focal Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A softly raised surface for one focused decision or task.",
+      "html": "<section class=\"ds-card\"><h2>Choose together</h2><p>Pick the list that feels right, then compare names one at a time.</p></section>",
+      "css": ".ds-card { max-width: 480px; border: 1px solid rgba(255,255,255,0.8); border-radius: 22px; background: rgba(255,255,255,0.85); color: #1c1917; padding: 32px; box-shadow: 0 30px 90px -42px rgba(77,48,38,0.5); font-family: Geist, Arial, sans-serif; } .ds-card h2 { margin: 0; font: 400 30px/1.2 Fraunces, Georgia, serif; letter-spacing: -0.03em; } .ds-card p { margin: 8px 0 0; color: #57534e; line-height: 1.75; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Compact, quiet field for practical name entry.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-name\">Add a name</label><input class=\"ds-input\" id=\"ds-name\" placeholder=\"Name\" />",
+      "css": ".ds-field-label { display: block; margin-bottom: 6px; color: #44403c; font: 500 14px/1.25 Geist, Arial, sans-serif; } .ds-input { width: 100%; height: 36px; border: 1px solid #e7e5e4; border-radius: 6px; background: #ffffff; color: #1c1917; padding: 4px 12px; font: 400 16px/1.5 Geist, Arial, sans-serif; box-shadow: 0 1px 2px rgba(28,25,23,0.05); transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input:hover { border-color: #a8a29e; } .ds-input:focus-visible { outline: none; border-color: #78716c; box-shadow: 0 0 0 3px rgba(120,113,108,0.25); }"
+    },
+    {
+      "name": "Brand Navigation",
+      "kind": "nav",
+      "description": "Compact public-page header with the heart mark and one direct route.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-mark\" aria-hidden=\"true\">♥</span><span>LeBabyName</span></a><a class=\"ds-nav-link\" href=\"#\">Start a duel <span aria-hidden=\"true\">→</span></a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid rgba(231,229,228,0.8); background: rgba(255,255,255,0.65); color: #1c1917; } .ds-brand { display: inline-flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; font: 600 18px/1 Fraunces, Georgia, serif; letter-spacing: -0.03em; } .ds-mark { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9999px; background: #1c1917; color: #ffffff; } .ds-nav-link { color: #44403c; text-decoration: none; font: 500 14px/1.25 Geist, Arial, sans-serif; } .ds-brand:hover, .ds-nav-link:hover { color: #be123c; } .ds-brand:focus-visible, .ds-nav-link:focus-visible { outline: none; border-radius: 6px; box-shadow: 0 0 0 3px rgba(190,18,60,0.3); }"
+    },
+    {
+      "name": "Consent Notice",
+      "kind": "custom",
+      "description": "Non-blocking privacy choice with equally available accept and decline actions.",
+      "html": "<aside class=\"ds-consent\"><p>Optional cookies help measure usage. The duel works exactly the same either way.</p><a href=\"#\">Cookie policy</a><div><button class=\"ds-consent-ghost\">Decline</button><button class=\"ds-consent-primary\">Accept optional cookies</button></div></aside>",
+      "css": ".ds-consent { max-width: 640px; border: 1px solid #e7e5e4; border-radius: 18px; background: #ffffff; color: #44403c; padding: 16px; box-shadow: 0 18px 55px -22px rgba(28,25,23,0.45); font: 400 14px/1.5 Geist, Arial, sans-serif; } .ds-consent p { margin: 0; } .ds-consent a { display: inline-block; margin-top: 4px; color: #57534e; font-size: 12px; text-underline-offset: 3px; } .ds-consent div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; } .ds-consent button { border: 0; border-radius: 10px; padding: 8px 12px; font: 500 14px/1.25 Geist, Arial, sans-serif; cursor: pointer; } .ds-consent-ghost { background: transparent; color: #44403c; } .ds-consent-ghost:hover { background: #f5f5f4; } .ds-consent-primary { background: #1c1917; color: #ffffff; } .ds-consent-primary:hover { background: #292524; } .ds-consent button:focus-visible, .ds-consent a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(190,18,60,0.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Warm Family Table",
+    "overview": "LeBabyName feels like making an important choice together in a calm, welcoming room. A warm cream canvas, softly tinted choices, generous editorial type, and plain controls keep the product playful without becoming childish. The interface is mobile-first and direct: one decision is visually dominant, supporting detail remains quiet, and monetization never competes with the naming task.\n\nThe visual system pairs expressive Fraunces headlines with practical Geist UI copy. White surfaces float gently over cream rather than forming a dense dashboard, while rose and sky tints distinguish choices without assigning rigid meaning beyond the current source list.",
+    "keyCharacteristics": [
+      "Warm cream foundations with translucent or white content surfaces.",
+      "Generous serif display type paired with compact, legible sans-serif controls.",
+      "Soft, deeply rounded containers and restrained warm shadows.",
+      "Rose for action and focus; rose and sky pastels for paired choices.",
+      "Mobile-first layouts with short paths and comfortable tap targets."
+    ],
+    "rules": [
+      {
+        "name": "The Cream Ground Rule",
+        "body": "Product flows and public editorial pages begin on the cream canvas; white is a surface, not the default page field.",
+        "section": "colors"
+      },
+      {
+        "name": "The Accent Restraint Rule",
+        "body": "Rose and sky clarify actions or paired choices. They do not become large decorative fields or compete simultaneously for attention.",
+        "section": "colors"
+      },
+      {
+        "name": "The Names Deserve Ceremony Rule",
+        "body": "Names, winners, and decision prompts use the serif voice; controls and explanations stay sans-serif.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tight Display Rule",
+        "body": "Large serif text uses close tracking and compact leading, while body copy keeps generous leading for reading comfort.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Decision Rule",
+        "body": "The active choice or primary action receives the strongest scale and contrast; navigation, advertising, and secondary actions remain visibly subordinate.",
+        "section": "layout"
+      },
+      {
+        "name": "The Soft Layer Rule",
+        "body": "Use shadow with translucency and quiet borders to separate a meaningful surface; do not shadow every container.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Nested Radius Rule",
+        "body": "Inner controls use a visibly smaller radius than the surface containing them.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do keep primary touch targets around 3rem high and preserve visible keyboard focus.",
+      "Do use cream as the page ground and white as a layered surface.",
+      "Do let Fraunces carry names, outcomes, and major headings while Geist carries UI and reading copy.",
+      "Do keep legal, consent, advertising, and monetization surfaces visually quieter than the active naming task.",
+      "Do reduce or remove animation when the user requests reduced motion."
+    ],
+    "donts": [
+      "Don't turn rose and sky into rigid gender claims; they are soft paired accents for source-list choices.",
+      "Don't place heavy shadows on every card or divider.",
+      "Don't use display serif styling for dense controls, metadata, or long body copy.",
+      "Don't let ads, consent prompts, or legal navigation obscure or interrupt a duel.",
+      "Don't introduce hard offset shadows, sharp-cornered feature cards, or saturated full-page backgrounds into this soft visual system."
+    ]
+  }
+}
