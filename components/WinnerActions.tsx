@@ -51,7 +51,6 @@ export default function WinnerActions({
     if (!response.ok) throw new Error(t('common.error'));
     const value = { url: data.url as string, compareUrl: data.compareUrl as string };
     setInvite(value);
-    setShowPushPrompt(true);
     return value;
   };
 
@@ -209,6 +208,7 @@ export default function WinnerActions({
       captureAnalytics('invite_sent', { channel: 'copy_link' });
       setNotice(t('invite.copied'));
     }
+    setShowPushPrompt(true);
     trackDatabaseEvent('invite_shared', {
       tournamentId,
       locale,
@@ -220,6 +220,7 @@ export default function WinnerActions({
     const value = await getInvite();
     const text = `${t('invite.nativeText')} ✨ ${value.url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    setShowPushPrompt(true);
     captureAnalytics('invite_sent', { channel: 'whatsapp' });
     trackDatabaseEvent('invite_shared', {
       tournamentId,
@@ -231,6 +232,7 @@ export default function WinnerActions({
   const copyInviteLink = () => run(async () => {
     const value = await getInvite();
     await navigator.clipboard.writeText(value.url);
+    setShowPushPrompt(true);
     captureAnalytics('invite_sent', { channel: 'copy_link' });
     trackDatabaseEvent('invite_shared', {
       tournamentId,

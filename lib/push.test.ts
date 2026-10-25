@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { isPushConfigured } from './push';
+import { buildTournamentPushPayload, isPushConfigured } from './push';
 
 const original = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
@@ -28,5 +28,19 @@ describe('optional Web Push configuration', () => {
     expect(isPushConfigured()).toBe(true);
     delete process.env.VAPID_PRIVATE_KEY;
     expect(isPushConfigured()).toBe(false);
+  });
+
+  it('opens the localized invite comparison when the push is clicked', () => {
+    const payload = buildTournamentPushPayload(
+      'invitee_finished',
+      'Camille',
+      '11111111-1111-4111-8111-111111111111',
+      'fr',
+      'https://lebabyname.com',
+    );
+    expect(payload.url).toBe(
+      'https://lebabyname.com/invites/11111111-1111-4111-8111-111111111111?lang=fr',
+    );
+    expect(payload.body).toContain('Camille');
   });
 });

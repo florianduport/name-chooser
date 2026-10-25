@@ -1,6 +1,6 @@
 import webpush from 'web-push';
 import { pool } from './postgres';
-import { resolveLocale, translate } from './i18n';
+import { resolveLocale, translate, type Locale } from './i18n';
 
 type NotificationKind = 'invitee_finished' | 'inviter_finished';
 
@@ -10,6 +10,28 @@ export function isPushConfigured() {
     process.env.VAPID_PRIVATE_KEY &&
     process.env.VAPID_SUBJECT,
   );
+}
+
+export function buildTournamentPushPayload(
+  kind: NotificationKind,
+  actorName: string,
+  inviteToken: string,
+  locale: Locale,
+  origin: string,
+) {
+  return {
+    title: translate(locale, 'notification.title'),
+    body: translate(
+      locale,
+      kind === 'invitee_finished'
+        ? 'notification.inviteeFinished'
+        : 'notification.inviterFinished',
+      { name: actorName },
+    ),
+    url: `${origin}/invites/${inviteToken}?lang=${locale}`,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+  };
 }
 
 export async function sendTournamentPush(
@@ -37,21 +59,10 @@ export async function sendTournamentPush(
   );
   await Promise.all(result.rows.map(async (row) => {
     const locale = resolveLocale(row.locale);
-    const body = translate(
-      locale,
-      kind === 'invitee_finished'
-        ? 'notification.inviteeFinished'
-        : 'notification.inviterFinished',
-      { name: actorName },
-    );
     const origin = process.env.AUTH_URL ?? '';
-    const payload = JSON.stringify({
-      title: translate(locale, 'notification.title'),
-      body,
-      url: `${origin}/invites/${inviteToken}?lang=${locale}`,
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
-    });
+    const payload = JSON.stringify(
+      buildTournamentPushPayload(kind, actorName, inviteToken, locale, origin),
+    );
     try {
       await webpush.sendNotification(
         {

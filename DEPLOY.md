@@ -45,9 +45,10 @@ The effective default database URL is:
 `AUTH_URL` is the public origin, not the callback. Auth.js appends `/api/auth/callback/google`.
 
 Generate optional push credentials with `npx web-push generate-vapid-keys`. Set all
-three VAPID variables together. If they are absent, in-app notifications continue
-to work and push subscription UI stays hidden. On iPhone and iPad, Web Push
-requires iOS/iPadOS 16.4+ and the site must first be added to the Home Screen.
+three VAPID variables together. If they are absent, the post-invite push opt-in
+stays hidden. There is no in-app notification inbox. On iPhone and iPad, Web
+Push requires iOS/iPadOS 16.4+, and the site must first be added to the Home
+Screen and opened as an installed PWA.
 
 ### 3. Deploy
 

@@ -16,7 +16,7 @@ LeBabyName is a private, multi-user baby-name tournament in six locales. Sign in
 - Consent-gated PostHog funnel analytics and PostgreSQL viral-loop events
 - Consent-gated Google AdSense slots and configurable sponsored product links
 - Private round-by-round histories, final rankings, and shared high-ranking names
-- In-app invite-result notifications plus optional standards-based Web Push
+- Optional standards-based Web Push for invite results, with no in-app inbox
 - Balanced first-round byes that guarantee a two-name final for every list size
 - Compact mobile layouts with large tap targets
 - PostgreSQL persistence with automatic startup migrations
@@ -135,6 +135,10 @@ details before commercial production use.
 
 The production Compose stack builds the app, runs migrations before startup, exposes the application only to Coolify's network, and persists PostgreSQL in a named volume. See [DEPLOY.md](DEPLOY.md) for the exact environment variables, Google Cloud setup, callback URL, backups, and deployment procedure.
 
-Web Push is optional. When VAPID variables are configured, users can opt in after
-sharing an invitation. On iOS/iPadOS 16.4+, push requires installing LeBabyName
-to the Home Screen.
+Web Push is optional. When VAPID variables are configured, the permission prompt
+is offered only after a user successfully shares or copies an invitation. Push
+clicks open the matching comparison page. Denied and unsupported states stay
+non-blocking. On iOS/iPadOS 16.4+, push requires installing LeBabyName to the
+Home Screen and opening the installed PWA. There is no in-app notification bell
+or inbox; server notification rows remain only as idempotency records that
+prevent duplicate Web Push delivery.
