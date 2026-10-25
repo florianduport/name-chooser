@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ArrowRight, Heart, MapPin, Sparkles } from 'lucide-react';
 import AffiliateBlock from '@/components/AffiliateBlock';
 import { EventTracker } from '@/components/EventTracker';
+import AdSlot from '@/components/AdSlot';
+import LegalFooter from '@/components/LegalFooter';
 import {
   getAllNames,
   getPublicName,
@@ -157,6 +159,8 @@ export default async function NamePage({ params }: Props) {
           </ul>
         </section>
 
+        <AdSlot placement="name-page" />
+
         <section className="mt-14" aria-labelledby="related-heading">
           <h2 id="related-heading" className="font-serif text-3xl tracking-[-0.03em]">{copy.related}</h2>
           <ul className="mt-5 flex flex-wrap gap-2">
@@ -180,6 +184,7 @@ export default async function NamePage({ params }: Props) {
           </ul>
         </nav>
       </article>
+      <LegalFooter locale={locale} />
     </main>
   );
 }

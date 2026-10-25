@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useI18n } from '@/components/LocaleProvider';
+import Link from 'next/link';
+import { legalPath } from '@/lib/legal';
 
 const COPY = {
   fr: {
@@ -9,36 +11,42 @@ const COPY = {
     refuse: 'Refuser',
     accept: 'Accepter les cookies facultatifs',
     label: 'Préférences de cookies',
+    details: 'Politique de cookies',
   },
   'en-GB': {
     text: 'LeBabyName uses optional cookies to measure usage and, when enabled, show advertising. The duel works exactly the same either way.',
     refuse: 'Refuse',
     accept: 'Accept optional cookies',
     label: 'Cookie preferences',
+    details: 'Cookie policy',
   },
   'en-US': {
     text: 'LeBabyName uses optional cookies to measure usage and, when enabled, show advertising. The matchup works exactly the same either way.',
     refuse: 'Decline',
     accept: 'Accept optional cookies',
     label: 'Cookie preferences',
+    details: 'Cookie policy',
   },
   es: {
     text: 'LeBabyName usa cookies opcionales para medir el uso y, si se activa, mostrar publicidad. Los duelos funcionan igual en cualquier caso.',
     refuse: 'Rechazar',
     accept: 'Aceptar cookies opcionales',
     label: 'Preferencias de cookies',
+    details: 'Política de cookies',
   },
   pt: {
     text: 'A LeBabyName usa cookies opcionais para medir a utilização e, quando ativada, mostrar publicidade. O duelo funciona da mesma forma em qualquer caso.',
     refuse: 'Recusar',
     accept: 'Aceitar cookies opcionais',
     label: 'Preferências de cookies',
+    details: 'Política de cookies',
   },
   it: {
     text: 'LeBabyName usa cookie facoltativi per misurare l’utilizzo e, se attivata, mostrare pubblicità. Il duello funziona allo stesso modo in ogni caso.',
     refuse: 'Rifiuta',
     accept: 'Accetta cookie facoltativi',
     label: 'Preferenze cookie',
+    details: 'Informativa sui cookie',
   },
 };
 
@@ -73,6 +81,9 @@ export default function CookieConsent({ enabled }: { enabled: boolean }) {
       <p className="text-sm leading-6 text-stone-700">
         {copy.text}
       </p>
+      <Link href={legalPath(locale, 'cookies')} className="mt-1 inline-block text-xs text-stone-600 underline underline-offset-3">
+        {copy.details}
+      </Link>
       <div className="mt-3 flex flex-wrap justify-end gap-2">
         <button type="button" onClick={() => decide('denied')} className="rounded-lg px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500">
           {copy.refuse}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { captureAnalytics } from '@/lib/analytics-client';
+import { useI18n } from '@/components/LocaleProvider';
 
 declare global {
   interface Window {
@@ -15,12 +16,13 @@ export default function AdSlot({
   enabled: enabledProp,
   clientId: clientIdProp,
 }: {
-  placement: 'between-rounds' | 'before-result';
+  placement: 'between-rounds' | 'before-result' | 'name-page';
   enabled?: boolean;
   clientId?: string;
 }) {
   const [dismissed, setDismissed] = useState(false);
   const [consented, setConsented] = useState(false);
+  const { locale } = useI18n();
   const [config, setConfig] = useState<{ enabled: boolean; clientId?: string; slotId?: string }>({
     enabled: enabledProp ?? false,
     clientId: clientIdProp,
@@ -36,8 +38,20 @@ export default function AdSlot({
       .then((value) => setConfig({
         enabled: value.adsEnabled === true,
         clientId: typeof value.adsenseClientId === 'string' ? value.adsenseClientId : undefined,
-        slotId: typeof value.adSlots?.[placement === 'between-rounds' ? 'betweenRounds' : 'beforeResult'] === 'string'
-          ? value.adSlots[placement === 'between-rounds' ? 'betweenRounds' : 'beforeResult']
+        slotId: typeof value.adSlots?.[
+          placement === 'between-rounds'
+            ? 'betweenRounds'
+            : placement === 'before-result'
+              ? 'beforeResult'
+              : 'namePage'
+        ] === 'string'
+          ? value.adSlots[
+              placement === 'between-rounds'
+                ? 'betweenRounds'
+                : placement === 'before-result'
+                  ? 'beforeResult'
+                  : 'namePage'
+            ]
           : undefined,
       }))
       .catch(() => undefined);
@@ -81,10 +95,18 @@ export default function AdSlot({
   }, [clientId, consented, enabled, slotId]);
 
   if (!enabled || dismissed) return null;
+  const copy = {
+    fr: { label: 'Publicité', space: 'Espace publicitaire', waiting: 'Les publicités restent désactivées sans votre accord.', dismiss: 'Masquer la publicité' },
+    'en-GB': { label: 'Advertisement', space: 'Advertising space', waiting: 'Ads stay off until you accept optional cookies.', dismiss: 'Dismiss advertisement' },
+    'en-US': { label: 'Advertisement', space: 'Advertising space', waiting: 'Ads stay off until you accept optional cookies.', dismiss: 'Dismiss advertisement' },
+    es: { label: 'Publicidad', space: 'Espacio publicitario', waiting: 'Los anuncios permanecen desactivados sin tu consentimiento.', dismiss: 'Ocultar publicidad' },
+    pt: { label: 'Publicidade', space: 'Espaço publicitário', waiting: 'Os anúncios permanecem desativados sem o seu consentimento.', dismiss: 'Ocultar publicidade' },
+    it: { label: 'Pubblicità', space: 'Spazio pubblicitario', waiting: 'Gli annunci restano disattivati senza il tuo consenso.', dismiss: 'Nascondi pubblicità' },
+  }[locale];
   return (
-    <aside className="relative my-3 min-h-12 rounded-xl border border-stone-200 bg-white/70 px-10 py-3 text-center text-xs text-stone-500" aria-label="Advertisement">
-      <span className="uppercase tracking-[0.14em]">Advertisement</span>
-      <p className="mt-1">{consented ? 'Ad space' : 'Ads stay off until you accept optional cookies.'}</p>
+    <aside className="relative my-3 min-h-12 rounded-xl border border-stone-200 bg-white/70 px-10 py-3 text-center text-xs text-stone-500" aria-label={copy.label}>
+      <span className="uppercase tracking-[0.14em]">{copy.label}</span>
+      <p className="mt-1">{consented ? copy.space : copy.waiting}</p>
       {consented && clientId && slotId && (
         <ins
           className="adsbygoogle"
@@ -99,7 +121,7 @@ export default function AdSlot({
         type="button"
         onClick={() => setDismissed(true)}
         className="absolute right-1.5 top-1.5 rounded-md p-1 text-stone-500 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-500"
-        aria-label="Dismiss advertisement"
+        aria-label={copy.dismiss}
       >
         <X aria-hidden="true" className="size-4" />
       </button>

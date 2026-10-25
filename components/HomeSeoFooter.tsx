@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Locale } from '@/lib/i18n';
 import { listSlugs, parseList, SEO_ROUTES } from '@/lib/seo';
+import { LEGAL_COPY, LEGAL_PAGE_KEYS, legalPath } from '@/lib/legal';
 
 const TITLES: Record<Locale, string> = {
   fr: 'Découvrir les prénoms',
@@ -26,7 +27,14 @@ export default function HomeSeoFooter({ locale }: { locale: Locale }) {
             </Link>
           ))}
         </nav>
-        <p className="mt-6 text-xs text-stone-500">LeBabyName · 100% free, forever.</p>
+        <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-stone-800 pt-5 text-xs" aria-label={LEGAL_COPY[locale].navigation}>
+          {LEGAL_PAGE_KEYS.map((page) => (
+            <Link key={page} href={legalPath(locale, page)} className="text-stone-400 underline decoration-stone-700 underline-offset-4 hover:text-white">
+              {LEGAL_COPY[locale].pages[page].title}
+            </Link>
+          ))}
+        </nav>
+        <p className="mt-5 text-xs text-stone-500">LeBabyName · 100% free, forever.</p>
       </div>
     </footer>
   );
