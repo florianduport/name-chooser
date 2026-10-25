@@ -30,6 +30,8 @@ COPY --from=build --link --chown=1001:1001 /app/public ./public
 COPY --from=build --link --chown=1001:1001 /app/.next/standalone ./
 COPY --from=build --link --chown=1001:1001 /app/.next/static ./.next/static
 COPY --link --chown=1001:1001 scripts/migrate.mjs ./scripts/migrate.mjs
+COPY --link --chown=1001:1001 scripts/seed-names.mjs ./scripts/seed-names.mjs
+COPY --link --chown=1001:1001 data/name-datasets.json ./data/name-datasets.json
 COPY --link --chown=1001:1001 --chmod=755 scripts/start.sh ./scripts/start.sh
 
 USER appuser

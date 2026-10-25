@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { addName, getNames, validateName } from '@/lib/db';
 import { getUserId } from '@/lib/session';
 import { Gender } from '@/types';
+import { DEFAULT_COUNTRY } from '@/lib/i18n';
+import { getRequestLocale } from '@/lib/locale-server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,8 +21,9 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const names = await getNames(userId, gender);
-    return NextResponse.json({ names });
+    const locale = await getRequestLocale();
+    const result = await getNames(userId, gender, DEFAULT_COUNTRY[locale], locale);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching names:', error);
     return NextResponse.json(

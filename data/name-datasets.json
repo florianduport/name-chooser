@@ -1,0 +1,74 @@
+[
+  {
+    "countryCode": "FR",
+    "countryName": "France",
+    "sourceName": "INSEE",
+    "sourceUrl": "https://www.insee.fr/fr/statistiques/8595130",
+    "coverageYear": 2025,
+    "publicationDate": "2026-07-16",
+    "version": "fr-insee-2025-v1",
+    "notes": "National ranks 1–50 by sex from prenoms-2025-nat.csv.",
+    "boys": ["Gabriel", "Noah", "Léo", "Raphaël", "Louis", "Jules", "Arthur", "Léon", "Adam", "Maël", "Isaac", "Sacha", "Marceau", "Liam", "Eden", "Noé", "Elio", "Gabin", "Lucas", "Aaron", "Mohamed", "Malo", "Paul", "Ayden", "Hugo", "Ibrahim", "Marius", "Victor", "Eliott", "Ethan", "Imran", "Aylan", "Naël", "Martin", "Ezio", "Côme", "Gaspard", "Zayn", "Nathan", "Léandre", "Basile", "Théo", "Augustin", "Nino", "Milo", "Mathis", "Lyam", "Oscar", "Ismaël", "Simon"],
+    "girls": ["Louise", "Jade", "Ambre", "Alma", "Alba", "Rose", "Emma", "Romy", "Adèle", "Alice", "Iris", "Lou", "Agathe", "Inaya", "Anna", "Nour", "Lina", "Charlie", "Olivia", "Julia", "Mia", "Victoire", "Jeanne", "Giulia", "Léonie", "Eva", "Esmée", "Juliette", "Sofia", "Zoé", "Léna", "Alya", "Luna", "Chloé", "Nina", "Victoria", "Alix", "Léa", "Romane", "Ava", "Charlotte", "Elena", "Lucie", "Albane", "Lyana", "Margot", "Gabrielle", "Emy", "Aya", "Livia"]
+  },
+  {
+    "countryCode": "GB",
+    "countryName": "United Kingdom",
+    "sourceName": "ONS (England and Wales)",
+    "sourceUrl": "https://www.ons.gov.uk/releases/babynamesinenglandandwales2025",
+    "coverageYear": 2025,
+    "publicationDate": "2026-07-09",
+    "version": "gb-ons-ew-2025-v1",
+    "notes": "England and Wales ranks 1–50 by sex from the official 2025 XLSX tables.",
+    "boys": ["Muhammad", "Noah", "Leo", "Luca", "Arthur", "Oliver", "George", "Oscar", "Theodore", "Freddie", "Archie", "Theo", "Henry", "Jude", "Arlo", "Alfie", "Rory", "Finley", "Harry", "Mohammed", "Albie", "Charlie", "Elijah", "Jack", "William", "Adam", "Roman", "Louie", "Reuben", "Rowan", "Edward", "Lucas", "Oakley", "Teddy", "Thomas", "Isaac", "Reggie", "Ezra", "Ronnie", "Alexander", "Jacob", "James", "Hudson", "Tommy", "Sonny", "Hugo", "Sebastian", "Max", "Louis", "Harrison"],
+    "girls": ["Olivia", "Lily", "Amelia", "Isla", "Florence", "Freya", "Poppy", "Elsie", "Ivy", "Isabella", "Ava", "Evelyn", "Sophia", "Phoebe", "Sienna", "Mabel", "Sofia", "Daisy", "Matilda", "Willow", "Mia", "Arabella", "Harper", "Rosie", "Charlotte", "Maeve", "Grace", "Maya", "Hallie", "Margot", "Lottie", "Delilah", "Penelope", "Aria", "Evie", "Millie", "Violet", "Ruby", "Aurora", "Ada", "Mila", "Ayla", "Maisie", "Emily", "Esme", "Ella", "Olive", "Bonnie", "Elodie", "Layla"]
+  },
+  {
+    "countryCode": "US",
+    "countryName": "United States",
+    "sourceName": "US Social Security Administration",
+    "sourceUrl": "https://www.ssa.gov/oact/babynames/",
+    "coverageYear": 2025,
+    "publicationDate": "2026-05-08",
+    "version": "us-ssa-2025-v1",
+    "notes": "National ranks 1–50 by sex from Social Security card applications.",
+    "boys": ["Liam", "Noah", "Oliver", "Theodore", "Henry", "James", "Elijah", "Mateo", "William", "Lucas", "Benjamin", "Levi", "Elias", "Luca", "Jack", "Sebastian", "Hudson", "Samuel", "Leo", "Ezra", "Michael", "Daniel", "John", "Ethan", "Julian", "Santiago", "Cooper", "Asher", "Joseph", "Alexander", "Owen", "Matthew", "Luke", "Thomas", "David", "Jackson", "Gabriel", "Wyatt", "Mason", "Bennett", "Dylan", "Roman", "Jacob", "Miles", "Carter", "Anthony", "Isaac", "Charles", "Maverick", "Thiago"],
+    "girls": ["Olivia", "Charlotte", "Emma", "Amelia", "Sophia", "Mia", "Isabella", "Evelyn", "Sofia", "Eliana", "Ava", "Eleanor", "Violet", "Ailany", "Aurora", "Harper", "Elizabeth", "Lily", "Camila", "Nora", "Hazel", "Penelope", "Chloe", "Ellie", "Lucy", "Aria", "Luna", "Isla", "Ella", "Lainey", "Zoe", "Scarlett", "Gianna", "Emily", "Valentina", "Layla", "Avery", "Grace", "Ivy", "Madison", "Abigail", "Elena", "Mila", "Willow", "Emilia", "Nova", "Naomi", "Riley", "Eloise", "Sadie"]
+  },
+  {
+    "countryCode": "ES",
+    "countryName": "Spain",
+    "sourceName": "INE España",
+    "sourceUrl": "https://www.ine.es/uc/vPHgh7bV",
+    "coverageYear": 2024,
+    "publicationDate": "2025-11-19",
+    "version": "es-ine-2024-v1",
+    "notes": "Latest official year available; national ranks 1–50 by sex from nomnac24.xlsx.",
+    "boys": ["Mateo", "Hugo", "Martin", "Leo", "Manuel", "Lucas", "Pablo", "Alejandro", "Enzo", "Alvaro", "Daniel", "Thiago", "Luca", "Gonzalo", "Mario", "Liam", "Adrian", "Oliver", "Bruno", "Diego", "Gael", "Nicolas", "Alex", "Marcos", "David", "Marco", "Antonio", "Juan", "Miguel", "Gabriel", "Javier", "Izan", "Rodrigo", "Marc", "Jose", "Angel", "Carlos", "Dylan", "Dario", "Noah", "Adam", "Jaime", "Samuel", "Nico", "Santiago", "Pau", "Guillermo", "Jorge", "Hector", "Eric"],
+    "girls": ["Sofia", "Lucia", "Martina", "Maria", "Vega", "Julia", "Olivia", "Valeria", "Mia", "Emma", "Paula", "Carmen", "Alma", "Carla", "Lola", "Gala", "Lara", "Daniela", "Sara", "Jimena", "Chloe", "Valentina", "Claudia", "Noa", "Alba", "Laia", "Candela", "Manuela", "Victoria", "Triana", "Alejandra", "Vera", "Ana", "Elena", "Aitana", "Carlota", "Blanca", "Zoe", "Ines", "Adriana", "Lia", "Abril", "Nora", "Clara", "Marina", "Luna", "Rocio", "Marta", "Amira", "Alicia"]
+  },
+  {
+    "countryCode": "PT",
+    "countryName": "Portugal",
+    "sourceName": "IRN civil registry (archived table)",
+    "sourceUrl": "https://cdn.cmjornal.pt/files/2017-01/05-01-2017_16_23_45_bebes_nomes_1.pdf",
+    "coverageYear": 2016,
+    "publicationDate": "2017-01-05",
+    "version": "pt-irn-2016-v1",
+    "notes": "Latest complete official top-50-per-sex table available for reuse. IRN has newer partial rankings, but no newer complete top 50 is publicly downloadable.",
+    "boys": ["Santiago", "João", "Francisco", "Rodrigo", "Martim", "Afonso", "Tomás", "Miguel", "Duarte", "Lourenço", "Gabriel", "Gonçalo", "Pedro", "Tiago", "Dinis", "Rafael", "Diogo", "Lucas", "Salvador", "Gustavo", "David", "Vicente", "Simão", "José", "Mateus", "Diego", "Manuel", "Henrique", "António", "Daniel", "Vasco", "Leonardo", "Bernardo", "André", "Luís", "Enzo", "Eduardo", "Alexandre", "Isaac", "Kevin", "Rúben", "Filipe", "Matias", "Leandro", "Xavier", "Ricardo", "Samuel", "Artur", "Nuno", "Bruno"],
+    "girls": ["Maria", "Matilde", "Leonor", "Carolina", "Mariana", "Beatriz", "Ana", "Sofia", "Inês", "Margarida", "Francisca", "Lara", "Laura", "Alice", "Joana", "Clara", "Diana", "Madalena", "Luana", "Mara", "Benedita", "Mafalda", "Constança", "Bianca", "Íris", "Sara", "Camila", "Rita", "Gabriela", "Eva", "Carlota", "Letícia", "Vitória", "Ema", "Luísa", "Catarina", "Ariana", "Yasmin", "Yara", "Miriam", "Carminho", "Alícia", "Marta", "Luena", "Rafaela", "Victória", "Núria", "Júlia", "Kyara", "Helena"]
+  },
+  {
+    "countryCode": "IT",
+    "countryName": "Italy",
+    "sourceName": "ISTAT",
+    "sourceUrl": "https://www.istat.it/dati/calcolatori/contanomi/",
+    "coverageYear": 2025,
+    "publicationDate": "2026-10-21",
+    "version": "it-istat-2025-v1",
+    "notes": "National ranks 1–50 by sex from ISTAT's official Conta nomi service.",
+    "boys": ["Leonardo", "Edoardo", "Tommaso", "Alessandro", "Francesco", "Lorenzo", "Mattia", "Gabriele", "Riccardo", "Andrea", "Diego", "Enea", "Nicolo'", "Matteo", "Giuseppe", "Antonio", "Federico", "Pietro", "Samuele", "Filippo", "Giulio", "Giovanni", "Noah", "Elia", "Gioele", "Michele", "Davide", "Gabriel", "Liam", "Salvatore", "Christian", "Marco", "Vincenzo", "Luca", "Thomas", "Ettore", "Emanuele", "Giorgio", "Damiano", "Giacomo", "Cesare", "Santiago", "Jacopo", "Raffaele", "Samuel", "Luigi", "Nathan", "Alessio", "Ludovico", "Thiago"],
+    "girls": ["Sofia", "Aurora", "Ginevra", "Vittoria", "Beatrice", "Giulia", "Matilde", "Ludovica", "Alice", "Camilla", "Emma", "Anna", "Bianca", "Chiara", "Azzurra", "Isabel", "Greta", "Nicole", "Ambra", "Giorgia", "Gaia", "Arianna", "Diana", "Adele", "Cecilia", "Viola", "Elena", "Margherita", "Sara", "Rebecca", "Noemi", "Martina", "Amelia", "Lavinia", "Anita", "Francesca", "Mia", "Emily", "Carlotta", "Nina", "Eleonora", "Gioia", "Luna", "Iris", "Sole", "Chloe", "Olivia", "Elisa", "Eva", "Marta"]
+  }
+]

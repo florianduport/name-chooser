@@ -5,6 +5,7 @@ import { ListChecks, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useI18n } from '@/components/LocaleProvider';
 
 interface NameListInputProps {
   onConfirm: (names: string[], saveNames: boolean) => Promise<void>;
@@ -12,6 +13,7 @@ interface NameListInputProps {
 }
 
 export default function NameListInput({ onConfirm, gender }: NameListInputProps) {
+  const { t } = useI18n();
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [saveNames, setSaveNames] = useState(true);
@@ -27,7 +29,7 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
 
   const handleSubmit = async () => {
     if (uniqueNames.length < 2) {
-      setError('Ajoutez au moins deux prénoms différents pour lancer un tournoi.');
+      setError(t('names.minimum'));
       return;
     }
 
@@ -46,18 +48,18 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
         <div className="mb-2 flex size-11 items-center justify-center rounded-full bg-rose-100 text-rose-700">
           <ListChecks aria-hidden="true" className="size-5" />
         </div>
-        <CardTitle className="font-serif text-2xl tracking-[-0.03em] sm:text-3xl">Votre liste de prénoms</CardTitle>
+        <CardTitle className="font-serif text-2xl tracking-[-0.03em] sm:text-3xl">{t('names.title')}</CardTitle>
         <CardDescription>
-          Un prénom par ligne, ou séparés par des virgules. Les doublons seront retirés automatiquement.
+          {t('names.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 px-4 sm:space-y-4 sm:px-6">
         <label htmlFor="custom-names" className="text-sm font-semibold text-stone-700">
-          Prénoms à comparer
+          {t('names.label')}
         </label>
         <Textarea
           id="custom-names"
-          placeholder="Exemple: Emma, Alice, Rose, Chloé, Lina..."
+          placeholder={t('names.placeholder')}
           value={inputValue}
           onChange={(event) => {
             setInputValue(event.target.value);
@@ -71,7 +73,7 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
         />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p id="name-count" className="text-sm text-stone-600" aria-live="polite">
-            {uniqueNames.length} prénom{uniqueNames.length !== 1 ? 's' : ''} différent{uniqueNames.length !== 1 ? 's' : ''}
+            {t('names.count', { count: uniqueNames.length })}
           </p>
           <label className="flex cursor-pointer items-center gap-2 text-sm text-stone-700">
             <input
@@ -80,7 +82,7 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
               onChange={(event) => setSaveNames(event.target.checked)}
               className="size-4 accent-rose-700"
             />
-            Ajouter les nouveaux prénoms à la liste {gender === 'girl' ? 'fille' : 'garçon'}
+            {t('names.save')} ({gender === 'girl' ? t('common.girls') : t('common.boys')})
           </label>
         </div>
         {error && (
@@ -94,7 +96,7 @@ export default function NameListInput({ onConfirm, gender }: NameListInputProps)
           disabled={isLoading || inputValue.trim().length === 0}
         >
           <Sparkles aria-hidden="true" />
-          {isLoading ? 'Préparation du tournoi…' : 'Commencer le tournoi'}
+          {isLoading ? t('names.processing') : t('names.start')}
         </Button>
       </CardContent>
     </Card>
