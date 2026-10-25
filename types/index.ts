@@ -11,6 +11,8 @@ export type TournamentState = {
   currentRound: number;
   remainingNames: string[];
   selectedNames: string[];
+  roundByeCount: number;
+  roundTotalDuels: number;
 };
 
 export type DuelHistoryEntry = {

@@ -28,43 +28,39 @@ export function createTournament(names: string[]): TournamentState {
       return true;
     });
   
-  // Mélanger les noms pour rendre le tournoi plus intéressant
   const shuffledNames = shuffleArray(uniqueNames);
-  
+  const plan = getFirstRoundPlan(shuffledNames.length);
+
   return {
     currentRound: 1,
-    remainingNames: shuffledNames,
-    selectedNames: [],
+    remainingNames: shuffledNames.slice(plan.byes),
+    selectedNames: shuffledNames.slice(0, plan.byes),
+    roundByeCount: plan.byes,
+    roundTotalDuels: plan.duels,
   };
 }
 
-// Obtenir les deux ou trois prochains noms à comparer
-// Si le nombre est impair, un duel à trois évite un passage automatique.
+export function getFirstRoundPlan(namesCount: number) {
+  if (namesCount < 2) return { survivors: namesCount, duels: 0, byes: namesCount };
+  let survivors = 1;
+  while (survivors * 2 < namesCount) survivors *= 2;
+  const duels = namesCount - survivors;
+  const byes = survivors - duels;
+  return { survivors, duels, byes };
+}
+
 export function getCurrentPair(tournament: TournamentState): [string, string] | [string, string, string] | null {
-  if (tournament.remainingNames.length >= 3 && tournament.remainingNames.length % 2 === 1) {
-    return [
-      tournament.remainingNames[0],
-      tournament.remainingNames[1],
-      tournament.remainingNames[2]
-    ];
-  }
-  
-  // Sinon, on fait un duel à 2 comme d'habitude
   if (tournament.remainingNames.length < 2) {
     return null;
   }
-  
-  // Garantir qu'on ne propose jamais deux fois le même nom dans la même paire
+
   const name1 = tournament.remainingNames[0];
   const name2 = tournament.remainingNames[1];
-  
-  // Cette vérification est théoriquement inutile car on retire les noms après usage,
-  // mais c'est une sécurité supplémentaire
+
   if (name1 === name2 && tournament.remainingNames.length > 2) {
-    // Si par hasard on a un doublon (ne devrait jamais arriver), on prend le suivant
     return [name1, tournament.remainingNames[2]];
   }
-  
+
   return [name1, name2];
 }
 
@@ -78,12 +74,9 @@ export function selectWinner(
     return tournament;
   }
   
-  // Si c'est un triplet (3 noms)
   if (pair.length === 3) {
     const winner = pair[winnerIndex];
-    // Retirer les 3 noms de la liste restante (slice(3) retire les 3 premiers)
     const newRemainingNames = tournament.remainingNames.slice(3);
-    // Ajouter le gagnant à la liste des sélectionnés pour le round suivant
     const newSelectedNames = [...tournament.selectedNames, winner];
     
     return {
@@ -93,13 +86,9 @@ export function selectWinner(
     };
   }
   
-  // Si c'est un duel classique (2 noms) — winnerIndex est nécessairement 0 ou 1
   const idx = winnerIndex as 0 | 1;
   const winner = pair[idx];
-  // Retirer les deux noms de la liste restante (slice(2) retire les 2 premiers)
   const newRemainingNames = tournament.remainingNames.slice(2);
-  
-  // Ajouter le gagnant à la liste des sélectionnés pour le round suivant
   const newSelectedNames = [...tournament.selectedNames, winner];
   
   return {
@@ -109,26 +98,23 @@ export function selectWinner(
   };
 }
 
-// Passer au round suivant
 export function nextRound(tournament: TournamentState): TournamentState {
-  // Si il reste encore des noms dans le round actuel, on ne peut pas passer au suivant
   if (tournament.remainingNames.length > 0) {
     return tournament;
   }
-  
-  // Si il n'y a qu'un seul nom sélectionné, c'est le gagnant final
+
   if (tournament.selectedNames.length === 1) {
     return tournament;
   }
-  
-  // Mélanger les noms sélectionnés pour le nouveau round
-  // Pas besoin de vérifier les doublons car selectedNames ne contient que des gagnants uniques
+
   const shuffledSelected = shuffleArray(tournament.selectedNames);
-  
+
   return {
     currentRound: tournament.currentRound + 1,
     remainingNames: shuffledSelected,
     selectedNames: [],
+    roundByeCount: 0,
+    roundTotalDuels: shuffledSelected.length / 2,
   };
 }
 
@@ -151,19 +137,13 @@ export function getWinner(tournament: TournamentState): string | null {
 
 // Obtenir le nombre total de rounds nécessaires
 export function getTotalRounds(namesCount: number): number {
-  let rounds = 0;
-  let remaining = Math.max(0, namesCount);
-  while (remaining > 1) {
-    remaining = Math.floor(remaining / 2);
-    rounds += 1;
-  }
-  return rounds;
+  if (namesCount < 2) return 0;
+  return Math.ceil(Math.log2(namesCount));
 }
 
 export function getRoundProgress(tournament: TournamentState) {
-  const completed = tournament.selectedNames.length;
-  const remaining = Math.floor(tournament.remainingNames.length / 2);
-  const total = completed + remaining;
+  const completed = tournament.selectedNames.length - tournament.roundByeCount;
+  const total = tournament.roundTotalDuels;
   return {
     current: Math.min(completed + 1, total),
     total,
@@ -171,12 +151,5 @@ export function getRoundProgress(tournament: TournamentState) {
 }
 
 export function getTotalDuels(namesCount: number): number {
-  let names = namesCount;
-  let total = 0;
-  while (names > 1) {
-    const duels = Math.floor(names / 2);
-    total += duels;
-    names = duels;
-  }
-  return total;
+  return Math.max(0, namesCount - 1);
 }
