@@ -12,11 +12,11 @@ import {
 } from '@/lib/seo';
 import { SUPPORTED_LOCALES, type Locale } from '@/lib/i18n';
 
-type Props = { params: Promise<{ locale: string; slug: string }> };
+type Props = { params: Promise<{ locale: string; segment: string }> };
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.flatMap((locale) =>
-    listSlugs(locale).map((slug) => ({ locale, slug })),
+    listSlugs(locale).map((segment) => ({ locale, segment })),
   );
 }
 
@@ -25,12 +25,12 @@ export const dynamic = 'force-static';
 export const revalidate = 86_400;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale: localeParam, slug } = await params;
+  const { locale: localeParam, segment } = await params;
   if (!isLocale(localeParam)) return {};
   const locale = localeParam as Locale;
-  const list = parseList(locale, slug);
+  const list = parseList(locale, segment);
   if (!list) return {};
-  const canonical = `${SITE_URL}/${locale}/${slug}`;
+  const canonical = `${SITE_URL}/${locale}/${segment}`;
   const image = `/api/og?lang=${encodeURIComponent(locale)}&kind=list&winner=${encodeURIComponent(list.title)}`;
   return {
     title: list.title,
@@ -48,12 +48,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicListPage({ params }: Props) {
-  const { locale: localeParam, slug } = await params;
+  const { locale: localeParam, segment } = await params;
   if (!isLocale(localeParam)) notFound();
   const locale = localeParam as Locale;
-  const list = parseList(locale, slug);
+  const list = parseList(locale, segment);
   if (!list) notFound();
-  const canonical = `${SITE_URL}/${locale}/${slug}`;
+  const canonical = `${SITE_URL}/${locale}/${segment}`;
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -131,7 +131,7 @@ export default async function PublicListPage({ params }: Props) {
 
         <nav className="mt-14 border-t border-stone-200 pt-7" aria-label="Related lists">
           <ul className="flex flex-wrap gap-x-5 gap-y-3 text-sm">
-            {listSlugs(locale).filter((item) => item !== slug).slice(0, 12).map((item) => (
+            {listSlugs(locale).filter((item) => item !== segment).slice(0, 12).map((item) => (
               <li key={item}><Link href={`/${locale}/${item}`} className="underline decoration-stone-300 underline-offset-4 hover:decoration-stone-700">{item.replaceAll('-', ' ')}</Link></li>
             ))}
           </ul>
