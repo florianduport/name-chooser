@@ -1,5 +1,5 @@
-import datasetsJson from '@/data/name-datasets.json';
-import meaningsJson from '@/data/name-meanings.json';
+import datasetsJson from '../data/name-datasets.json';
+import meaningsJson from '../data/name-meanings.json';
 import {
   DEFAULT_COUNTRY,
   SUPPORTED_LOCALES,

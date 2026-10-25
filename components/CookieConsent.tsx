@@ -48,11 +48,14 @@ export default function CookieConsent({ enabled }: { enabled: boolean }) {
   const copy = COPY[locale];
 
   useEffect(() => {
-    if (
-      enabled &&
-      !localStorage.getItem('lebabyname-cookie-consent') &&
-      !localStorage.getItem('lebabyname-ad-consent')
-    ) setVisible(true);
+    const timer = window.setTimeout(() => {
+      if (
+        enabled &&
+        !localStorage.getItem('lebabyname-cookie-consent') &&
+        !localStorage.getItem('lebabyname-ad-consent')
+      ) setVisible(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [enabled]);
 
   if (!visible) return null;

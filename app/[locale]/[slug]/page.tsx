@@ -8,7 +8,6 @@ import {
   listSlugs,
   namePath,
   parseList,
-  SEO_ROUTES,
   SITE_URL,
 } from '@/lib/seo';
 import { SUPPORTED_LOCALES, type Locale } from '@/lib/i18n';

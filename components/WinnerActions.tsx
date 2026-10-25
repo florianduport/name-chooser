@@ -194,6 +194,7 @@ export default function WinnerActions({
 
   const nativeInviteShare = () => run(async () => {
     const value = await getInvite();
+    const channel = navigator.share ? 'native' : 'copy_link';
     const data = {
       title: t('invite.nativeTitle'),
       text: t('invite.nativeText'),
@@ -210,7 +211,7 @@ export default function WinnerActions({
     trackDatabaseEvent('invite_shared', {
       tournamentId,
       locale,
-      metadata: { channel: navigator.share ? 'native' : 'copy_link' },
+      metadata: { channel },
     });
   });
 
