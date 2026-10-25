@@ -21,6 +21,7 @@ export function generateStaticParams() {
 }
 
 export const dynamicParams = false;
+export const dynamic = 'force-static';
 export const revalidate = 86_400;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
