@@ -14,7 +14,7 @@ LeBabyName is a private, multi-user baby-name tournament in six locales. Sign in
 - Indexable localized name profiles and official/thematic name lists with canonical and hreflang metadata
 - JSON-LD, localized Open Graph images, `sitemap.xml`, and `robots.txt`
 - Consent-gated PostHog funnel analytics and PostgreSQL viral-loop events
-- Optional, consent-gated ad slots and configurable sponsored product links
+- Consent-gated Google AdSense slots and configurable sponsored product links
 - Private round-by-round histories, final rankings, and shared high-ranking names
 - In-app invite-result notifications plus optional standards-based Web Push
 - Balanced first-round byes that guarantee a two-name final for every list size
@@ -50,6 +50,8 @@ All discovery pages are server-rendered and localized under `/{locale}`:
   `/en-US/top-baby-names-2025-usa`
 - Derived lists for short and unisex names, girl/boy rankings, and first letters
 - Machine discovery: `/sitemap.xml` and `/robots.txt`
+- Localized legal pages: `/{locale}/legal/privacy`,
+  `/{locale}/legal/legal-notice`, and `/{locale}/legal/cookies`
 
 Supported locale prefixes are `fr`, `en-GB`, `en-US`, `es`, `pt`, and `it`.
 
@@ -77,21 +79,27 @@ npm run lint
 npm run build
 ```
 
-## Optional analytics, ads, and affiliate links
+## Analytics, ads, and affiliate links
 
-All optional measurement and advertising stays off until the visitor accepts
-the shared cookie-consent prompt. PostHog is completely disabled when
+All measurement and advertising scripts stay off until the visitor accepts the
+shared cookie-consent prompt. PostHog is completely disabled when
 `NEXT_PUBLIC_POSTHOG_KEY` is empty. It defaults to the EU endpoint and identifies
 signed-in people only by the internal numeric user ID; no email is sent.
+
+Google AdSense uses the public publisher client
+`ca-pub-6104925526195992` by default, so no Coolify variable is required.
+`/ads.txt` and the site-verification meta tag are always public; the AdSense
+JavaScript itself is consent-gated. `ADS_ENABLED=false` disables all ad slots.
 
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_POSTHOG_KEY` | Enables PostHog after consent |
 | `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host; defaults to `https://eu.i.posthog.com` |
-| `ADS_ENABLED` | Enables the small, dismissible duel ad placeholders; defaults to `false` |
-| `ADSENSE_CLIENT_ID` | Optional AdSense client ID loaded after consent |
+| `ADS_ENABLED` | Enables small, dismissible ad placements; defaults to `true` |
+| `ADSENSE_CLIENT_ID` | AdSense client; defaults to `ca-pub-6104925526195992` |
 | `ADSENSE_SLOT_BETWEEN_ROUNDS` | Optional provider slot ID between rounds |
 | `ADSENSE_SLOT_BEFORE_RESULT` | Optional provider slot ID before result actions |
+| `ADSENSE_SLOT_NAME_PAGE` | Optional responsive slot ID on public name pages |
 | `NEXT_PUBLIC_AFFILIATE_BIRTH_ANNOUNCEMENTS_URL` | Birth-announcement partner URL |
 | `NEXT_PUBLIC_AFFILIATE_JEWELRY_URL` | Jewelry partner URL |
 | `NEXT_PUBLIC_AFFILIATE_BODYSUITS_URL` | Bodysuit partner URL |
@@ -108,6 +116,20 @@ PostHog captures App Router pageviews plus `duel_started`, `round_completed`,
 `invitee_finished`, `signup`, `name_page_viewed`, `affiliate_clicked`, and
 `ad_impression`. The `product_events` PostgreSQL table also records invite,
 share, shared-result view, and conversion events for first-party loop analysis.
+
+### Google consent requirement
+
+Refusing the built-in consent prompt means the AdSense and PostHog scripts are
+not loaded at all. Before serving either personalised or non-personalised Google
+ads to users in the EEA, United Kingdom, or Switzerland, configure a
+Google-certified consent management platform that supports the IAB TCF in the
+AdSense account. The built-in prompt is a strict script gate, but it is not
+itself represented as a Google-certified CMP.
+
+The localized privacy, legal-notice, and cookie pages describe AdSense,
+PostHog, and affiliate links. Their publisher identity, contact, and final
+hosting-provider placeholders must be replaced with the operator’s legal
+details before commercial production use.
 
 ## Coolify
 

@@ -7,6 +7,7 @@ import {
   namePath,
   SITE_URL,
 } from '@/lib/seo';
+import { LEGAL_PAGE_KEYS, legalPath } from '@/lib/legal';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -27,9 +28,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     })),
   );
+  const legal = SUPPORTED_LOCALES.flatMap((locale) =>
+    LEGAL_PAGE_KEYS.map((page) => ({
+      url: `${SITE_URL}${legalPath(locale, page)}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.3,
+    })),
+  );
   return [
     { url: SITE_URL, lastModified: now, changeFrequency: 'weekly', priority: 1 },
     ...lists,
+    ...legal,
     ...names,
   ];
 }

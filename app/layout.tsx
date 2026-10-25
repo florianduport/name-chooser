@@ -5,6 +5,7 @@ import { translate } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/locale-server";
 import CookieConsent from "@/components/CookieConsent";
 import PostHogAnalytics from "@/components/PostHogAnalytics";
+import { DEFAULT_ADSENSE_CLIENT_ID } from "@/lib/adsense";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -66,12 +67,15 @@ export default async function RootLayout({
   const locale = await getRequestLocale();
   return (
     <html lang={locale}>
+      <head>
+        <meta name="google-adsense-account" content={DEFAULT_ADSENSE_CLIENT_ID} />
+      </head>
       <body
         className={`${geistSans.variable} ${fraunces.variable} antialiased`}
       >
         <LocaleProvider locale={locale}>
           {children}
-          <CookieConsent enabled={process.env.ADS_ENABLED === "true" || Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY)} />
+          <CookieConsent enabled={process.env.ADS_ENABLED !== "false" || Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY)} />
           <PostHogAnalytics />
         </LocaleProvider>
       </body>
