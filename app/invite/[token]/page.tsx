@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Users } from 'lucide-react';
 import { auth } from '@/auth';
@@ -6,23 +7,46 @@ import { getInviteMetadata } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
 import SignInScreen from '@/components/SignInScreen';
 import { Button } from '@/components/ui/button';
-import { getRequestLocale } from '@/lib/locale-server';
 import { translate } from '@/lib/i18n';
+import { getPageLocale } from '@/lib/page-locale';
+
+type PageProps = {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ lang?: string | string[] }>;
+};
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const locale = await getPageLocale(searchParams);
+  const title = translate(locale, 'invite.nativeTitle');
+  const description = translate(locale, 'invite.signInDescription');
+  const image = `/api/og?lang=${encodeURIComponent(locale)}&kind=invite`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
+  };
+}
 
 export default async function InvitePage({
   params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+  searchParams,
+}: PageProps) {
   const { token } = await params;
   if (!isUuid(token)) notFound();
   const invite = await getInviteMetadata(token);
   if (!invite) notFound();
   const session = await auth();
-  const locale = await getRequestLocale();
+  const locale = await getPageLocale(searchParams);
   const t = (key: Parameters<typeof translate>[1], values?: Record<string, string | number>) =>
     translate(locale, key, values);
-  const callbackUrl = `/invite/${token}`;
+  const callbackUrl = `/invite/${token}?lang=${locale}`;
 
   if (!session?.user) {
     return (
@@ -46,7 +70,7 @@ export default async function InvitePage({
           {t('invite.description', { count: invite.nameCount })}
         </p>
         <Button asChild className="mt-7 h-12 w-full rounded-xl bg-stone-900 text-base text-white hover:bg-stone-800">
-          <Link href={`/tournament?invite=${token}`}>
+          <Link href={`/tournament?invite=${token}&lang=${locale}`}>
             {t('invite.start')} <ArrowRight aria-hidden="true" />
           </Link>
         </Button>

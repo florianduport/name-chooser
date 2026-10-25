@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUserId } from '@/lib/session';
 import { createResultShare } from '@/lib/tournaments-db';
 import { isUuid } from '@/lib/tokens';
+import { getRequestLocale } from '@/lib/locale-server';
 
 export async function POST(
   request: Request,
@@ -20,8 +21,9 @@ export async function POST(
     return NextResponse.json({ error: 'Résultat introuvable' }, { status: 404 });
   }
   const origin = process.env.AUTH_URL ?? new URL(request.url).origin;
+  const locale = await getRequestLocale();
   return NextResponse.json({
     winner: shared.winner,
-    url: `${origin}/share/${shared.share_token}`,
+    url: `${origin}/share/${shared.share_token}?lang=${encodeURIComponent(locale)}`,
   });
 }
